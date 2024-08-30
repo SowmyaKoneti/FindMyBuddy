@@ -1,9 +1,14 @@
+
 'use client'; // Mark this as a Client Component
 
-import React from 'react';
+import React, { createContext } from 'react';
 import Head from "next/head";
+import MapComponent from "./maps/MapComponent";
 import SearchIcon from '@mui/icons-material/Search';
-import { Box, Typography, Button, TextField, InputAdornment } from '@mui/material';
+import { Box, Typography, Container, Button, TextField, InputAdornment } from '@mui/material';
+
+
+
 
 export default function Home() {
   const handleSignIn = () => {
@@ -11,6 +16,7 @@ export default function Home() {
   };
 
   return (
+
     <>
       <Head>
         <title>Third Place - Home</title>
@@ -148,6 +154,18 @@ export default function Home() {
         />
       </Box>
     </Box>
-    </>
+    <Container>
+      <Box sx={{ textAlign: "center", marginBottom: 4 }}>
+        <Typography variant="h3" component="h1" gutterBottom>
+          Maps
+        </Typography>
+
+      </Box>
+      <Box sx={{ height: 400 }}>
+        <MapComponent />
+      </Box>
+    </Container>
+   </>
   );
+
 }
