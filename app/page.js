@@ -2,18 +2,23 @@
 
 import React from 'react';
 import Head from "next/head";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import SearchIcon from '@mui/icons-material/Search';
 import { Box, Typography, Button, TextField, InputAdornment } from '@mui/material';
 
 export default function Home() {
   const handleSignIn = () => {
-    window.location.href = '/profile'; // Correct path to profile page
+    window.location.href = '/sign-in'; // path to sign-in page
   };
+
+  const handleSignUp = () => {
+    window.location.href = '/sign-up'; // path to sign-up page
+  }
 
   return (
     <>
       <Head>
-        <title>Third Place - Home</title>
+        <title>club3 - Home</title>
         <meta name="description" content="Connect with others based on your interests and location." />
       </Head>
     <Box 
@@ -43,36 +48,42 @@ export default function Home() {
           zIndex: 1000, // Ensure it stays on top
         }}
       >
-        &lt; Third Place &gt;
+        &lt; club3 &gt;
       </Typography>
 
       {/* Sign In and Sign Up Buttons */}
       <Box sx={{ position: 'fixed', top: '1rem', right: '1rem', display: 'flex', gap: '1rem' }}>
-        <Button
-          variant="contained"
-          sx={{
-            background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)', // Gradient for the buttons
-            color: '#ffffff', // White text color for visibility
-            '&:hover': {
-              background: 'linear-gradient(45deg, #6a2c70, #c31432, #ff7e5f)', // Slightly darker gradient on hover
-            }
-          }}
-          onClick={handleSignIn} // Correctly set onClick to navigate
-        >
-          Sign In
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)', // Gradient for the buttons
-            color: '#ffffff', // White text color for visibility
-            '&:hover': {
-              background: 'linear-gradient(45deg, #6a2c70, #c31432, #ff7e5f)', // Slightly darker gradient on hover
-            }
-          }}
-        >
-          Sign Up
-        </Button>
+        <SignedOut>
+          <Button
+            variant="contained"
+            sx={{
+              background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)', // Gradient for the buttons
+              color: '#ffffff', // White text color for visibility
+              '&:hover': {
+                background: 'linear-gradient(45deg, #6a2c70, #c31432, #ff7e5f)', // Slightly darker gradient on hover
+              }
+            }}
+            onClick={handleSignIn} // functional call for sign-up
+          >
+            Sign In
+          </Button>
+          <Button
+            variant="contained"
+            sx={{
+              background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)', // Gradient for the buttons
+              color: '#ffffff', // White text color for visibility
+              '&:hover': {
+                background: 'linear-gradient(45deg, #6a2c70, #c31432, #ff7e5f)', // Slightly darker gradient on hover
+              }
+            }}
+            onClick={handleSignUp} // function call for sign-up
+          >
+            Sign Up
+          </Button>
+        </SignedOut>
+        <SignedIn>
+            <UserButton showName/>
+          </SignedIn>
       </Box>
 
       {/* Page Heading */}
@@ -87,7 +98,7 @@ export default function Home() {
           WebkitTextFillColor: 'transparent', // Make the text transparent to show the gradient
         }}
       >
-        Third Place
+        club3
       </Typography>
         
       {/* Page Description */}
@@ -99,7 +110,7 @@ export default function Home() {
           color: '#fcb045', // Orange from the gradient for consistency
         }}
       >
-        This app allows you to create your own social community based on your interests and location. <br />
+        A place to create your own social community based on your interests and location. <br />
         Connect with others to share knowledge, teach, learn, and grow together in a collaborative environment.
       </Typography>
 
