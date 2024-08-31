@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
-import { Box, Container } from '@mui/material';
+import { Box, Container, Button, Typography } from '@mui/material';
 import { getDistance } from 'geolib';
 
 const MapComponent = () => {
@@ -97,8 +97,15 @@ const MapComponent = () => {
                     <Marker
                         key={index}
                         position={{ lat: user.lat, lng: user.lng }}
+                        icon={
+                            user.lat === center.lat && user.lng === center.lng
+                                ? undefined // Default color for current user
+                                : {
+                                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" // Blue color for others
+                                }
+                        }
                         onMouseOver={() => setSelectedUser(user)}
-                        onMouseOut={() => setSelectedUser(null)}
+                    // onMouseOut={() => setSelectedUser(null)}
                     />
                 ))}
                 {/* Selected user */}
@@ -106,11 +113,37 @@ const MapComponent = () => {
                     <InfoWindow
                         position={{ lat: selectedUser.lat, lng: selectedUser.lng }}
                         onCloseClick={() => setSelectedUser(null)}
+                        options={{
+                            pixelOffset: new window.google.maps.Size(0, -30), // Moves the infowindow up slightly
+                            disableAutoPan: true // Prevents the map from moving when the infowindow opens
+                        }}
                     >
-                        <div>
-                            <h4>{selectedUser.name}</h4>
-                        </div>
+                        <Box
+                            style={{
+                                textAlign: 'center',
+                                padding: '5px',
+                                width: '150px',
+                                borderRadius: '8px', // Rounded corners
+                                boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)', // Light shadow for a subtle effect
+                                backgroundColor: '#fff' // White background for a clean look
+                            }}
+                        >
+                            <Typography variant="subtitle2" gutterBottom>
+                                {selectedUser.name}
+                            </Typography>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                fullWidth
+                                style={{ marginTop: '5px' }}
+                                onClick={() => alert(`Start chatting with ${selectedUser.name}`)}
+                            >
+                                Chat
+                            </Button>
+                        </Box>
                     </InfoWindow>
+
                 )}
             </GoogleMap>
         </LoadScript>
