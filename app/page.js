@@ -159,6 +159,17 @@ export default function Home() {
         />
       </Box>
     </Box>
+    <Container>
+      <Box sx={{ textAlign: "center", marginBottom: 4 }}>
+        <Typography variant="h3" component="h1" gutterBottom>
+          Maps
+        </Typography>
+
+      </Box>
+      <Box sx={{ height: 400 }}>
+        <MapComponent />
+      </Box>
+    </Container>
     </>
   );
 }
