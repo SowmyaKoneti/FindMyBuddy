@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import { Box, Container } from '@mui/material';
-import { getDistance } from 'geolib'; // Import getDistance from geolib
+import { getDistance } from 'geolib';
 
 const MapComponent = () => {
     const [center, setCenter] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
     const [visibleUsers, setVisibleUsers] = useState([]);
     const mapRef = useRef(null);
-    const maxDistance = 5000; // Maximum distance in meters (5 km)
+    const maxDistance = 5000;
 
     const containerStyle = {
         width: "100%",
