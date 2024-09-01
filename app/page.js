@@ -1,15 +1,11 @@
-
 'use client'; // Mark this as a Client Component
 
-import React, { createContext } from 'react';
+import React from 'react';
 import Head from "next/head";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import MapComponent from "./maps/MapComponent";
 import SearchIcon from '@mui/icons-material/Search';
-import { Box, Typography, Container, Button, TextField, InputAdornment } from '@mui/material';
-
-
-
+import { Box, Typography, Button, TextField, InputAdornment, Container } from '@mui/material';
 
 export default function Home() {
   const handleSignIn = () => {
@@ -21,162 +17,160 @@ export default function Home() {
   }
 
   return (
-
     <>
       <Head>
         <title>club3 - Home</title>
         <meta name="description" content="Connect with others based on your interests and location." />
       </Head>
-    <Box 
-      sx={{ 
-        width: '100%', // Full width of the viewport
-        minHeight: '100vh', // Full height of the viewport
-        display: 'flex', // Center content horizontally and vertically
-        flexDirection: 'column', // Align items vertically
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        backgroundColor: '#ffffff', // White background
-        padding: '2rem'
-      }}
-    >
-      {/* Static Label at Top Left */}
-      <Typography 
-        variant="subtitle2" 
-        sx={{ 
-          position: 'fixed', // Fixed positioning to keep it static
-          top: '1rem', 
-          left: '1rem',
-          background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)', // Gradient for the subtitle
-          WebkitBackgroundClip: 'text', // Clip the background to the text
-          WebkitTextFillColor: 'transparent', // Make the text transparent to show the gradient
-          fontWeight: 'medium',
-          fontFamily: 'sans-serif',
-          zIndex: 1000, // Ensure it stays on top
+
+      <Box
+        sx={{
+          width: '100%',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)', // Gradient background
         }}
       >
-        &lt; club3 &gt;
-      </Typography>
-
-      {/* Sign In and Sign Up Buttons */}
-      <Box sx={{ position: 'fixed', top: '1rem', right: '1rem', display: 'flex', gap: '1rem' }}>
-        <SignedOut>
-          <Button
-            variant="contained"
+        {/* Header */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '1rem' }}>
+          <Typography
+            variant="h4"
             sx={{
-              background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)', // Gradient for the buttons
-              color: '#ffffff', // White text color for visibility
-              '&:hover': {
-                background: 'linear-gradient(45deg, #6a2c70, #c31432, #ff7e5f)', // Slightly darker gradient on hover
-              }
+              background: 'linear-gradient(to right, #4f758f, #449fdb)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 'bold',
             }}
-            onClick={handleSignIn} // functional call for sign-up
           >
-            Sign In
-          </Button>
-          <Button
-            variant="contained"
+            club3
+          </Typography>
+          <Box>
+            <SignedOut>
+              <Button
+                variant="contained"
+                sx={{
+                  background: 'linear-gradient(to right, #00BFFF, #FFFFFF)', // Gradient for button
+                  color: '#FFFFFF',
+                  '&:hover': {
+                    background: 'linear-gradient(to right, #00A3E0, #E0F7FA)', // Darker gradient on hover
+                  }
+                }}
+                onClick={handleSignIn}
+              >
+                Sign In
+              </Button>
+              <Button
+                variant="contained"
+                sx={{
+                  background: 'linear-gradient(to right, #00BFFF, #FFFFFF)', // Gradient for button
+                  color: '#FFFFFF',
+                  marginLeft: '1rem',
+                  '&:hover': {
+                    background: 'linear-gradient(to right, #00A3E0, #E0F7FA)', // Darker gradient on hover
+                  }
+                }}
+                onClick={handleSignUp}
+              >
+                Sign Up
+              </Button>
+            </SignedOut>
+            <SignedIn>
+              <UserButton showName />
+            </SignedIn>
+          </Box>
+        </Box>
+
+        {/* Main Content */}
+        <Container sx={{ textAlign: 'center', padding: '2rem' }}>
+          <Typography
+            variant="h2"
             sx={{
-              background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)', // Gradient for the buttons
-              color: '#ffffff', // White text color for visibility
-              '&:hover': {
-                background: 'linear-gradient(45deg, #6a2c70, #c31432, #ff7e5f)', // Slightly darker gradient on hover
-              }
+              marginBottom: '1rem',
+              fontWeight: 'bold',
+              fontFamily: 'Poppins, sans-serif',
+              // wordSpacing: '2px',
+              letterSpacing: '1.2px',
+              color: '#3996d4',
             }}
-            onClick={handleSignUp} // function call for sign-up
           >
-            Sign Up
-          </Button>
-        </SignedOut>
-        <SignedIn>
-            <UserButton showName/>
-          </SignedIn>
-      </Box>
+            Unite with Like-Minded People
+          </Typography>
 
-      {/* Page Heading */}
-      <Typography 
-        variant="h2" 
-        sx={{ 
-          textAlign: 'center', 
-          marginBottom: '1rem', 
-          fontWeight: 'bold', 
-          background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)', // Instagram-like gradient
-          WebkitBackgroundClip: 'text', // Clip the background to the text
-          WebkitTextFillColor: 'transparent', // Make the text transparent to show the gradient
-        }}
-      >
-        club3
-      </Typography>
-        
-      {/* Page Description */}
-      <Typography 
-        variant="body1" 
-        sx={{ 
-          textAlign: 'center', 
-          marginBottom: '2rem', 
-          color: '#fcb045', // Orange from the gradient for consistency
-        }}
-      >
-        A place to create your own social community based on your interests and location. <br />
-        Connect with others to share knowledge, teach, learn, and grow together in a collaborative environment.
-      </Typography>
+          <Typography
+            variant="body1"
+            sx={{
 
-      {/* Search Field */}
-      <Box 
-        sx={{ 
-          maxWidth: 900, // Match previous width settings
-          width: '100%', // Ensure the box is responsive
-          margin: '0 auto', 
-          padding: '0.5rem', 
-          border: '1px solid #833ab4', // Border color from the Instagram gradient
-          borderRadius: '8px', // Rounded corners
-          position: 'relative', // Allows positioning of the icon
-          backgroundColor: '#ffffff', // Match the app background
-          display: 'flex', // Flexbox for alignment
-          alignItems: 'center', // Center vertically
-        }}
-      > 
-        <TextField
-          variant="outlined"
-          placeholder="Area of Interest"
-          fullWidth
-          InputProps={{
-            sx: {
-              color: '#000000', // Black text color for visibility on white background
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'transparent', // Removes default border
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#833ab4', // Border on hover
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#833ab4', // Border when focused
-              },
-            },
-            endAdornment: (
-              <InputAdornment position="end">
-                <SearchIcon sx={{ color: '#833ab4' }} /> {/* Search icon with color matching the gradient */}
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            backgroundColor: '#ffffff', // Match the app background
-            borderRadius: '8px', // Match the parent box
-          }}
-        />
-      </Box>
-    </Box>
-    <Container>
-      <Box sx={{ textAlign: "center", marginBottom: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom>
-          Maps
-        </Typography>
+              textAlign: 'center',
+              color: '#000000', // Subheading color
+              maxWidth: '600px',
+              fontSize: '15px',
+              margin: '0 auto',
+              marginBottom: '2em',
+            }}
+          >
+            A place to create your own social community based on your interests and location. <br />
+            Connect with others to share knowledge, teach, learn, and grow together in a collaborative environment.
+          </Typography>
 
-      </Box>
-      <Box sx={{ height: 400 }}>
-        <MapComponent />
-      </Box>
-    </Container>
+          {/* Search Field */}
+          <Box
+            sx={{
+              maxWidth: 600,
+              margin: '0 auto',
+              // padding: '0.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              // borderRadius: '8px',
+              backgroundColor: '#FFFFFF',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Soft shadow for a realistic feel
+            }}
+          >
+            <TextField
+              variant="outlined"
+              placeholder="Search for nearby companions"
+              fullWidth
+              InputProps={{
+                sx: {
+                  color: '#000000', // Text color
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'transparent', // Remove default border
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'transparent', // Keep border transparent on hover
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'transparent', // Keep border transparent when focused
+                  },
+                },
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <SearchIcon sx={{ color: '#000000' }} /> {/* Dark icon color for contrast */}
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                backgroundColor: '#FFFFFF', // White background for the input
+                borderRadius: '8px',
+                '& .MuiOutlinedInput-root': {
+                  padding: '8px 12px', // Adequate padding inside the input
+                },
+                '& .MuiInputBase-input': {
+                  padding: '8px 12px', // Padding for input text
+                },
+              }}
+            />
+          </Box>
+
+        </Container>
+
+        {/* Map Section */}
+        <Container sx={{ padding: '2rem' }}>
+          <Box sx={{ height: 400 }}>
+            <MapComponent />
+          </Box>
+        </Container>
+      </Box >
     </>
   );
-
 }
