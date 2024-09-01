@@ -8,13 +8,13 @@ export const config = {
   matcher: [
     // Skip Next.js internals and all static files, unless found in search params
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    
-    // Always run for API routes
+
+    // Always run for API routes but specifically exclude certain routes like sign-in, sign-up, and user-details
     '/(api|trpc)(.*)',
 
-    // Exclude the sign-in and sign-up catch-all route and any other authentication-related paths
-    // This pattern ensures that '/sign-in' and any sub-paths like '/sign-in/[[...rest]]' are excluded
-    '/((?!sign-in).*)',
-    '/((?!sign-up|user-details).*)',
+    // Exclude authentication-related paths by including specific patterns to skip
+    // Adjusting the paths to ensure correct matching
+    // Using RegExp to correctly exclude certain paths
+    '/((?!sign-in|sign-up|user-details).*)',
   ],
 };

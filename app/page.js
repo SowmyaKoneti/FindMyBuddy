@@ -53,7 +53,7 @@ export default function Home() {
                   background: 'linear-gradient(to right, #4f758f, #449fdb)', // Gradient for button
                   color: '#FFFFFF',
                   '&:hover': {
-                    background: 'linear-gradient(to right, #4f758f, #449fdb)', // Darker gradient on hover
+                    background: 'linear-gradient(to right, #3b5f7a, #307fcc)', // Darker gradient on hover
                   }
                 }}
                 onClick={handleSignIn}
@@ -67,7 +67,7 @@ export default function Home() {
                   color: '#FFFFFF',
                   marginLeft: '1rem',
                   '&:hover': {
-                    background: 'linear-gradient(to right, #4f758f, #449fdb)', // Darker gradient on hover
+                    background: 'linear-gradient(to right, #3b5f7a, #307fcc)', // Darker gradient on hover
                   }
                 }}
                 onClick={handleSignUp}

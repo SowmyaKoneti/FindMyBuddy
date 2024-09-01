@@ -12,7 +12,7 @@ export default function SignInPage() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)', // Gradient background matching the landing page theme
+        background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)', // Gradient background
         padding: 3,
       }}
     >

@@ -1,6 +1,7 @@
-'use client'; // Ensures this component is treated as a Client Component
+'use client';
 
 import React from 'react';
+import { useAuth, useUser } from '@clerk/nextjs'; // Import useUser to get the logged-in user's info
 import { Box, Typography, Button } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
@@ -11,12 +12,12 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 export default function ProfilePage() {
   // Hardcoded user details
   const user = {
-    name: 'John Doe',
+    name: 'Shravya Reddy',
     bio: 'Software Developer with a passion for teaching and learning new technologies.',
-    linkedIn: 'https://www.linkedin.com/in/johndoe',
-    github: 'https://github.com/johndoe',
+    linkedIn: 'https://www.linkedin.com/in/shravyareddyakmy',
+    github: 'https://github.com/ShravyaReddyAkmy',
     twitter: 'https://twitter.com/johndoe',
-    instagram: 'https://www.instagram.com/johndoe',
+    instagram: 'https://www.instagram.com/shravz_11',
   };
 
   const handleNavigation = (url) => {
@@ -24,6 +25,9 @@ export default function ProfilePage() {
       window.open(url, '_blank');
     }
   };
+
+  const { signOut } = useAuth(); // useAuth hook to handle sign out
+  const { user: clerkUser } = useUser(); // useUser hook to get user details from Clerk
 
   return (
     <Box
@@ -33,7 +37,7 @@ export default function ProfilePage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#ffffff', // White background for the profile page
+        background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)', // Gradient background
         padding: '2rem',
       }}
     >
@@ -43,10 +47,10 @@ export default function ProfilePage() {
           onClick={() => (window.location.href = '/')} // Navigate to landing page
           startIcon={<HomeIcon />}
           sx={{
-            background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)', // Gradient to match Sign In button on landing page
+            background: 'linear-gradient(to right, #4f758f, #449fdb)', // Gradient to match Sign In button on landing page
             color: '#ffffff', // White text color for visibility
             '&:hover': {
-              background: 'linear-gradient(45deg, #6a2c70, #c31432, #ff7e5f)', // Slightly darker gradient on hover
+              background: 'linear-gradient(to right, #3b5f7a, #307fcc)', // Slightly darker gradient on hover
             },
             padding: '6px 16px', // Similar padding to the Sign In button
             borderRadius: '4px', // Border radius to match button style
@@ -57,15 +61,20 @@ export default function ProfilePage() {
         <Button
           variant="contained"
           sx={{
-            background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)', // Gradient to match Sign In button on landing page
+            background: 'linear-gradient(to right, #4f758f, #449fdb)', // Gradient to match Sign In button on landing page
             color: '#ffffff', // White text color for visibility
             '&:hover': {
-              background: 'linear-gradient(45deg, #6a2c70, #c31432, #ff7e5f)', // Slightly darker gradient on hover
+              background: 'linear-gradient(to right, #3b5f7a, #307fcc)', // Slightly darker gradient on hover
             },
           }}
           onClick={() => {
-            // Handle log out - Redirect to landing page
-            window.location.href = '/';
+            // Handle log out with Clerk's signOut function
+            signOut().then(() => {
+              // After signing out, redirect to the landing page
+              window.location.href = '/';
+            }).catch((error) => {
+              console.error('Failed to log out:', error); // Handle any errors during sign out
+            });
           }}
         >
           Log Out
@@ -77,6 +86,12 @@ export default function ProfilePage() {
         <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333333' }}>
           {user.name}
         </Typography>
+        {/* Display the Clerk username if the user is logged in */}
+        {clerkUser && (
+          <Typography variant="body2" sx={{ color: '#555555' }}>
+            @{clerkUser.username || clerkUser.firstName || clerkUser.email} {/* Display username, first name, or email */}
+          </Typography>
+        )}
         <Typography variant="body1" sx={{ marginBottom: '1rem', color: '#666666' }}>
           {user.bio}
         </Typography>
