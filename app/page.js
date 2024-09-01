@@ -2,19 +2,45 @@
 
 import React from 'react';
 import Head from "next/head";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useClerk, useUser } from "@clerk/nextjs";
 import MapComponent from "./maps/MapComponent";
 import SearchIcon from '@mui/icons-material/Search';
-import { Box, Typography, Button, TextField, InputAdornment, Container } from '@mui/material';
+import { Box, Typography, Button, TextField, InputAdornment, Container, Avatar, Menu, MenuItem } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter(); // Initialize the router for navigation
+  const { signOut } = useClerk(); // To handle sign out if needed
+  const { user } = useUser(); // Fetch the current user details from Clerk
+
   const handleSignIn = () => {
-    window.location.href = '/sign-in'; // path to sign-in page
+    router.push('/sign-in'); // Navigate to sign-in page
   };
 
   const handleSignUp = () => {
-    window.location.href = '/sign-up'; // path to sign-up page
-  }
+    router.push('/sign-up'); // Navigate to sign-up page
+  };
+
+  // Custom Profile Button Logic
+  const handleProfileRedirect = () => {
+    router.push('/profile'); // Navigate to profile page
+  };
+
+  // State for menu anchor element
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  // Handle menu open
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  // Handle menu close
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  // Use Gravatar or a similar service to get a circular avatar if no profile image is available
+  const avatarUrl = user?.profileImageUrl || `https://robohash.org/${user?.username || 'default'}.png?size=50x50&set=set4`; // Use set4 for circular avatars if supported
 
   return (
     <>
@@ -76,7 +102,25 @@ export default function Home() {
               </Button>
             </SignedOut>
             <SignedIn>
-              <UserButton showName />
+              {/* Custom Profile Button */}
+              <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={handleMenuOpen}>
+                <Typography sx={{ marginRight: '0.5rem', fontWeight: 'bold', color: '#333' }}>
+                  {user?.username || 'User'}
+                </Typography>
+                <Avatar 
+                  src={avatarUrl} 
+                  alt={user?.username || 'User'} 
+                  sx={{ width: 40, height: 40, borderRadius: '50%' }} // Ensuring the avatar is circular
+                />
+              </Box>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem onClick={handleProfileRedirect}>Profile</MenuItem>
+                <MenuItem onClick={() => signOut()}>Sign Out</MenuItem>
+              </Menu>
             </SignedIn>
           </Box>
         </Box>
@@ -89,7 +133,6 @@ export default function Home() {
               marginBottom: '1rem',
               fontWeight: 'bold',
               fontFamily: 'Poppins, sans-serif',
-              // wordSpacing: '2px',
               letterSpacing: '1.2px',
               color: '#3996d4',
             }}
@@ -100,7 +143,6 @@ export default function Home() {
           <Typography
             variant="body1"
             sx={{
-
               textAlign: 'center',
               color: '#000000', // Subheading color
               maxWidth: '600px',
@@ -118,10 +160,8 @@ export default function Home() {
             sx={{
               maxWidth: 600,
               margin: '0 auto',
-              // padding: '0.5rem',
               display: 'flex',
               alignItems: 'center',
-              // borderRadius: '8px',
               backgroundColor: '#FFFFFF',
               boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Soft shadow for a realistic feel
             }}

@@ -1,10 +1,9 @@
-// api/user-details/route.js
 import { db } from '../../../firebase'; // Adjust path based on your project structure
 import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
 
 console.log('Connecting to Firebase database...');
 
-// Define the handler for POST requests
+// POST request to save user-details during sign-up
 export async function POST(req) {
   try {
     const userDetails = await req.json();
@@ -62,5 +61,48 @@ export async function POST(req) {
     console.error('Error adding/updating user details:', error);
     // Return an error response
     return new Response(JSON.stringify({ error: 'Failed to save user details' }), { status: 500 });
+  }
+}
+
+// GET request to fetch user details for profile
+export async function GET(req) {
+  try {
+    // Extract query parameters from the URL
+    const { searchParams } = new URL(req.url);
+    const email = searchParams.get('email');
+    const username = searchParams.get('username');
+
+    // Validate required query parameters
+    if (!email || !username) {
+      console.log('Missing email or username in request');
+      return new Response(
+        JSON.stringify({ error: 'Missing email or username in request' }),
+        { status: 400 }
+      );
+    }
+
+    // Create a unique document ID using email and username
+    const docId = `${username}_${email.replace(/[@.]/g, '_')}`; // Replacing special characters to avoid Firestore ID issues
+
+    // Reference to the document in Firestore
+    const userDocRef = doc(collection(db, 'users'), docId);
+
+    // Fetch the document from Firestore
+    const docSnapshot = await getDoc(userDocRef);
+
+    if (docSnapshot.exists()) {
+      // Return the user details if the document exists
+      const userData = docSnapshot.data();
+      console.log(`User details fetched successfully for document ID: ${docId}`);
+      return new Response(JSON.stringify(userData), { status: 200 });
+    } else {
+      // Return an error response if the document does not exist
+      console.log(`User details not found for document ID: ${docId}`);
+      return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
+    }
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    // Return an error response
+    return new Response(JSON.stringify({ error: 'Failed to fetch user details' }), { status: 500 });
   }
 }
