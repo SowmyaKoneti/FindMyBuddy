@@ -50,10 +50,10 @@ export default function Home() {
               <Button
                 variant="contained"
                 sx={{
-                  background: 'linear-gradient(to right, #00BFFF, #FFFFFF)', // Gradient for button
+                  background: 'linear-gradient(to right, #4f758f, #449fdb)', // Gradient for button
                   color: '#FFFFFF',
                   '&:hover': {
-                    background: 'linear-gradient(to right, #00A3E0, #E0F7FA)', // Darker gradient on hover
+                    background: 'linear-gradient(to right, #4f758f, #449fdb)', // Darker gradient on hover
                   }
                 }}
                 onClick={handleSignIn}
@@ -63,11 +63,11 @@ export default function Home() {
               <Button
                 variant="contained"
                 sx={{
-                  background: 'linear-gradient(to right, #00BFFF, #FFFFFF)', // Gradient for button
+                  background: 'linear-gradient(to right, #4f758f, #449fdb)', // Gradient for button
                   color: '#FFFFFF',
                   marginLeft: '1rem',
                   '&:hover': {
-                    background: 'linear-gradient(to right, #00A3E0, #E0F7FA)', // Darker gradient on hover
+                    background: 'linear-gradient(to right, #4f758f, #449fdb)', // Darker gradient on hover
                   }
                 }}
                 onClick={handleSignUp}
