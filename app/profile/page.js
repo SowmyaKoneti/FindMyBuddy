@@ -21,7 +21,9 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import SettingsIcon from '@mui/icons-material/Settings';
-import FriendsComponent from '../friends/FriendsComponent'; // Import the new FriendsList component
+
+import FriendsComponent from '../friends/FriendsComponent';  // Updated path
+import ChatsComponent from '../chats/ChatsComponent';        // Updated path
 
 export default function ProfilePage() {
   const { signOut } = useAuth();
@@ -31,6 +33,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [openSettings, setOpenSettings] = useState(false);
+  const [activeChat, setActiveChat] = useState(null); // State to handle active chat
+
   const [formData, setFormData] = useState({
     fullName: '',
     address: '',
@@ -183,7 +187,6 @@ export default function ProfilePage() {
         alignItems: 'center',
         background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)',
         padding: '2rem',
-        position: 'relative',
       }}
     >
       {/* Top Right: Home Icon and Log Out Button */}
@@ -191,7 +194,7 @@ export default function ProfilePage() {
         <IconButton
           onClick={() => (window.location.href = '/')}
           sx={{
-            color: '#555', // Plain black/grey color
+            color: '#555',
           }}
         >
           <HomeIcon />
@@ -222,12 +225,11 @@ export default function ProfilePage() {
         </Button>
       </Box>
 
-      {/* Main Profile Section - Centered */}
+      {/* Center: User Details */}
       <Box
         sx={{
           textAlign: 'center',
           marginTop: '5rem',
-          marginBottom: '3rem',
         }}
       >
         <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333333' }}>
@@ -269,9 +271,17 @@ export default function ProfilePage() {
         </Box>
       </Box>
 
-      {/* Friends List */}
-      <FriendsComponent />
-      
+      {/* Friends List Section */}
+      <FriendsComponent onChatClick={(friend) => setActiveChat(friend)} />
+
+      {/* Chat Box */}
+      {activeChat && (
+        <ChatsComponent
+          friend={activeChat} // Pass the selected friend's data including full name
+          onClose={() => setActiveChat(null)}
+        />
+      )}
+
       {/* Edit Account Details Dialog */}
       <Dialog open={openSettings} onClose={handleSettingsClose} fullWidth maxWidth="sm">
         <DialogTitle>Edit Account Details</DialogTitle>
