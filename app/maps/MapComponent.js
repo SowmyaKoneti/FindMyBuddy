@@ -175,7 +175,7 @@ const MapComponent = () => {
                                     }}
                                 >
                                     <Typography variant="subtitle2" gutterBottom>
-                                        {selectedUser.name}
+                                        {selectedUser.fullName}
                                     </Typography>
                                     <Typography variant="body2" color="textSecondary">
                                         Rating: {selectedUser.rating}
@@ -186,7 +186,7 @@ const MapComponent = () => {
                                         size="small"
                                         fullWidth
                                         style={{ marginTop: '5px' }}
-                                        onClick={() => alert(`Start chatting with ${selectedUser.name}`)}
+                                        onClick={() => alert(`Start chatting with ${selectedUser.fullName}`)}
                                     >
                                         Chat
                                     </Button>
@@ -234,7 +234,7 @@ const MapComponent = () => {
                             }
                         }}
                     >
-                        <Typography variant="h6">{user.name}</Typography>
+                        <Typography variant="h6">{user.fullName}</Typography>
                         <Typography variant="body2" color="textSecondary" gutterBottom>
                             {user.lookingFor}
                         </Typography>
@@ -246,7 +246,7 @@ const MapComponent = () => {
                             style={{ marginTop: '5px' }}
                             onClick={(e) => {
                                 e.stopPropagation(); // Prevent click event from triggering on parent Box
-                                alert(`Start chatting with ${user.name}`);
+                                alert(`Start chatting with ${user.fullName}`);
                             }}
                         >
                             Chat
