@@ -213,7 +213,7 @@ const MapComponent = () => {
                         fontWeight: 'bold',
                         textAlign: 'center'
                     }}
-                >Nearby Users Looking For</Typography>
+                >Nearby Users</Typography>
                 {users.map((user, index) => (
                     <Box
                         key={index}
