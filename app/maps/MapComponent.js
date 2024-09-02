@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
-import { Box, Container, Button, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { getDistance } from 'geolib';
+
+// API key for Google Maps Geocoding
+const GEOCODING_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const MapComponent = () => {
     const [center, setCenter] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
     const [visibleUsers, setVisibleUsers] = useState([]);
+    const [users, setUsers] = useState([]); // State to hold users fetched from API
     const mapRef = useRef(null);
     const maxDistance = 5000;
 
@@ -15,18 +19,51 @@ const MapComponent = () => {
         height: "100%",
     };
 
-    const users = [
-        { name: "User 1", lat: 38.645160, lng: -90.245940, lookingFor: "Looking for mentorship in machine learning", rating: 4.5 },
-        { name: "User 2", lat: 38.641500, lng: -90.240500, lookingFor: "Seeking collaboration on open-source projects", rating: 3.8 },
-        { name: "User 3", lat: 38.650800, lng: -90.252200, lookingFor: "Interested in learning more about cloud computing", rating: 4.2 },
-        { name: "User 4", lat: 38.638900, lng: -90.248300, lookingFor: "Looking for advice on data analysis techniques", rating: 4.0 },
-        { name: "User 5", lat: 38.633200, lng: -90.241100, lookingFor: "Seeking help with software architecture design", rating: 4.1 },
-        { name: "User 6", lat: 38.652300, lng: -90.236500, lookingFor: "Interested in career guidance in software engineering", rating: 3.9 },
-        { name: "User 7", lat: 38.648100, lng: -90.258900, lookingFor: "Looking for networking opportunities in tech", rating: 4.3 },
-        { name: "User 8", lat: 38.630600, lng: -90.250400, lookingFor: "Seeking support with web development challenges", rating: 3.7 },
-        { name: "User 9", lat: 38.655200, lng: -90.230800, lookingFor: "Interested in AI research collaborations", rating: 4.4 },
-        { name: "User 10", lat: 38.635500, lng: -90.260200, lookingFor: "Looking for partners in software startups", rating: 4.6 }
-    ];
+    // Fetch Users from API
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('/api/user-details'); // Replace with your API endpoint
+                if (!response.ok) {
+                    throw new Error('Failed to fetch users');
+                }
+                const data = await response.json();
+
+                // Geocode Address and Location to Lat/Lng
+                const usersWithLatLng = await Promise.all(data.map(async user => {
+                    const fullAddress = `${user.address}, ${user.location}`;
+                    const latLng = await getLatLngFromAddress(fullAddress);
+                    return { ...user, ...latLng };
+                }));
+
+                setUsers(usersWithLatLng);
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        };
+
+        fetchUsers();
+    }, []);
+
+    // Function to Geocode Address to Lat/Lng
+    const getLatLngFromAddress = async (address) => {
+        try {
+            const response = await fetch(
+                `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GEOCODING_API_KEY}`
+            );
+            const data = await response.json();
+            if (data.status === 'OK' && data.results.length > 0) {
+                const { lat, lng } = data.results[0].geometry.location;
+                return { lat, lng };
+            } else {
+                console.error('Failed to get lat/lng for address:', address);
+                return { lat: null, lng: null };
+            }
+        } catch (error) {
+            console.error('Geocoding error:', error);
+            return { lat: null, lng: null };
+        }
+    };
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(
@@ -45,57 +82,52 @@ const MapComponent = () => {
     const updateVisibleUsers = () => {
         if (center) {
             const filteredUsers = users.filter((user) => {
-                const distanceToUser = getDistance(
-                    { latitude: center.lat, longitude: center.lng },
-                    { latitude: user.lat, longitude: user.lng }
-                );
-                return distanceToUser <= maxDistance;
+                if (user.lat && user.lng) {
+                    const distanceToUser = getDistance(
+                        { latitude: center.lat, longitude: center.lng },
+                        { latitude: user.lat, longitude: user.lng }
+                    );
+                    return distanceToUser <= maxDistance;
+                }
+                return false;
             });
             setVisibleUsers(filteredUsers);
         }
     };
 
-    // On load, fit bounds to include nearby users
+    useEffect(() => {
+        updateVisibleUsers();
+    }, [center, users]);
+
     const onMapLoad = (map) => {
         mapRef.current = map;
         updateVisibleUsers();
     };
 
-    // Adjust on zoom-in/out
     const onZoomChanged = () => {
         if (mapRef.current) {
             const bounds = mapRef.current.getBounds();
             if (bounds) {
                 const filteredUsers = users.filter((user) => {
-                    // Check if lat and lng are valid numbers and within valid range
-                    const isValidLat = typeof user.lat === 'number' && user.lat >= -90 && user.lat <= 90;
-                    const isValidLng = typeof user.lng === 'number' && user.lng >= -180 && user.lng <= 180;
-
-                    if (isValidLat && isValidLng) {
+                    if (user.lat && user.lng) {
                         const userLatLng = new window.google.maps.LatLng(user.lat, user.lng);
                         return bounds.contains(userLatLng);
                     }
-
-                    return false; // Exclude users with invalid lat/lng
+                    return false;
                 });
                 setVisibleUsers(filteredUsers);
             }
         }
     };
 
-
-    useEffect(() => {
-        updateVisibleUsers();
-    }, [center]);
-
-    if (!center) return <div>loading...</div>;
+    if (!center) return <div>Loading...</div>;
 
     return (
         <Box
             sx={{
                 display: 'flex',
                 height: '100vh',
-                flexDirection: { xs: 'column', md: 'row' }, // Stack on mobile, side-by-side on larger screens
+                flexDirection: { xs: 'column', md: 'row' },
             }}
         >
             <Box
@@ -106,7 +138,7 @@ const MapComponent = () => {
                     flexDirection: 'column',
                 }}
             >
-                <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+                <LoadScript googleMapsApiKey={GEOCODING_API_KEY}>
                     <GoogleMap
                         mapContainerStyle={containerStyle}
                         center={center}
@@ -114,16 +146,12 @@ const MapComponent = () => {
                         onLoad={onMapLoad}
                         onZoomChanged={onZoomChanged}
                     >
-                        <Marker position={center} label="you" />
+                        <Marker position={center} label="You" />
                         {visibleUsers.map((user, index) => (
                             <Marker
                                 key={index}
                                 position={{ lat: user.lat, lng: user.lng }}
-                                icon={
-                                    user.lat === center.lat && user.lng === center.lng
-                                        ? undefined
-                                        : { url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }
-                                }
+                                icon={{ url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }}
                                 onMouseOver={() => setSelectedUser(user)}
                             />
                         ))}
@@ -175,7 +203,7 @@ const MapComponent = () => {
                     overflowY: 'auto',
                     padding: '1rem',
                     boxSizing: 'border-box',
-                    borderLeft: { md: '1px solid #ddd' }, // Border between map and user list
+                    borderLeft: { md: '1px solid #ddd' },
                 }}
             >
                 <Typography
@@ -186,7 +214,6 @@ const MapComponent = () => {
                         textAlign: 'center'
                     }}
                 >Nearby Users Looking For</Typography>
-                {/* Scrollable User List */}
                 {users.map((user, index) => (
                     <Box
                         key={index}
@@ -205,10 +232,9 @@ const MapComponent = () => {
                                 mapRef.current.panTo(new window.google.maps.LatLng(user.lat, user.lng)); // Center the map on the selected user
                                 mapRef.current.setZoom(15); // Optional: Adjust zoom level
                             }
-                        }} // Set selected user and pan the map
+                        }}
                     >
                         <Typography variant="h6">{user.name}</Typography>
-                        {/* Add additional user details here if needed */}
                         <Typography variant="body2" color="textSecondary" gutterBottom>
                             {user.lookingFor}
                         </Typography>
@@ -230,5 +256,6 @@ const MapComponent = () => {
             </Box>
         </Box>
     );
-}
+};
+
 export default MapComponent;
