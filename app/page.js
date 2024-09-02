@@ -168,7 +168,7 @@ export default function Home() {
             {/* Location Search Bar */}
             <TextField
               variant="outlined"
-              placeholder="Search by Location    Eg: New York"
+              placeholder="Search by Location  Eg: New York"
               InputProps={{
                 sx: {
                   color: '#000000', // Text color
@@ -191,7 +191,7 @@ export default function Home() {
               sx={{
                 backgroundColor: '#FFFFFF', // White background for the input
                 borderRadius: '0px',
-                width: '350px', // Set width for consistency
+                width: '300px', // Set width for consistency
                 '& .MuiOutlinedInput-root': {
                   padding: '8px 12px', // Adequate padding inside the input
                 },
@@ -205,7 +205,7 @@ export default function Home() {
             {/* Nearby Companions Search Bar */}
             <TextField
               variant="outlined"
-              placeholder="Search by Interests    Eg: Dance"
+              placeholder="Search by Interests  Eg: Dance"
               InputProps={{
                 sx: {
                   color: '#000000', // Text color
@@ -228,7 +228,7 @@ export default function Home() {
               sx={{
                 backgroundColor: '#FFFFFF', // White background for the input
                 borderRadius: '0px',
-                width: '350px', // Set width for consistency
+                width: '450px', // Set width for consistency
                 '& .MuiOutlinedInput-root': {
                   padding: '8px 12px', // Adequate padding inside the input
                 },
