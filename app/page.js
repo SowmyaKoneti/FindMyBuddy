@@ -55,7 +55,7 @@ export default function Home() {
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
-          background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)', // Gradient background
+          background: 'linear-gradient(to right, #E0F7FA, #FFFFFF, #E0F7FA)', // Gradient background
         }}
       >
         {/* Header */}
@@ -107,9 +107,9 @@ export default function Home() {
                 <Typography sx={{ marginRight: '0.5rem', fontWeight: 'bold', color: '#333' }}>
                   {user?.username || 'User'}
                 </Typography>
-                <Avatar 
-                  src={avatarUrl} 
-                  alt={user?.username || 'User'} 
+                <Avatar
+                  src={avatarUrl}
+                  alt={user?.username || 'User'}
                   sx={{ width: 40, height: 40, borderRadius: '50%' }} // Ensuring the avatar is circular
                 />
               </Box>
@@ -158,18 +158,17 @@ export default function Home() {
           {/* Search Field */}
           <Box
             sx={{
-              maxWidth: 600,
-              margin: '0 auto',
               display: 'flex',
+              justifyContent: 'center', // Horizontally center items
               alignItems: 'center',
-              backgroundColor: '#FFFFFF',
-              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Soft shadow for a realistic feel
+              gap: '16px', // Space between the items
+              padding: '16px',
             }}
           >
+            {/* Location Search Bar */}
             <TextField
               variant="outlined"
-              placeholder="Search for nearby companions"
-              fullWidth
+              placeholder="Search by location"
               InputProps={{
                 sx: {
                   color: '#000000', // Text color
@@ -183,25 +182,77 @@ export default function Home() {
                     borderColor: 'transparent', // Keep border transparent when focused
                   },
                 },
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <SearchIcon sx={{ color: '#000000' }} /> {/* Dark icon color for contrast */}
-                  </InputAdornment>
-                ),
+                // endAdornment: (
+                //   <InputAdornment position="end">
+                //     <SearchIcon sx={{ color: '#000000' }} /> {/* Dark icon color for contrast */}
+                //   </InputAdornment>
+                // ),
               }}
               sx={{
                 backgroundColor: '#FFFFFF', // White background for the input
-                borderRadius: '8px',
+                borderRadius: '0px',
+                width: '200px', // Set width for consistency
                 '& .MuiOutlinedInput-root': {
                   padding: '8px 12px', // Adequate padding inside the input
                 },
                 '& .MuiInputBase-input': {
                   padding: '8px 12px', // Padding for input text
                 },
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
               }}
             />
-          </Box>
 
+            {/* Nearby Companions Search Bar */}
+            <TextField
+              variant="outlined"
+              placeholder="Search for nearby companions"
+              InputProps={{
+                sx: {
+                  color: '#000000', // Text color
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'transparent', // Remove default border
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'transparent', // Keep border transparent on hover
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'transparent', // Keep border transparent when focused
+                  },
+                },
+                // endAdornment: (
+                //   <InputAdornment position="end">
+                //     <SearchIcon sx={{ color: '#000000' }} /> {/* Dark icon color for contrast */}
+                //   </InputAdornment>
+                // ),
+              }}
+              sx={{
+                backgroundColor: '#FFFFFF', // White background for the input
+                borderRadius: '0px',
+                width: '500px', // Set width for consistency
+                '& .MuiOutlinedInput-root': {
+                  padding: '8px 12px', // Adequate padding inside the input
+                },
+                '& .MuiInputBase-input': {
+                  padding: '8px 12px', // Padding for input text
+                },
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+              }}
+            />
+
+            {/* Search Button */}
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{
+                height: '40px', // Same height as the text fields
+                borderRadius: '0px',
+                padding: '0 15px',
+                fontSize: '12px',
+              }}
+            >
+              Search
+            </Button>
+          </Box>
         </Container>
 
         {/* Map Section */}
