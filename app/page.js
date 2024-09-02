@@ -1,10 +1,10 @@
 'use client'; // Mark this as a Client Component
 
-import React from 'react';
+import React, { useState } from 'react';
 import Head from "next/head";
 import { SignedIn, SignedOut, useClerk, useUser } from "@clerk/nextjs";
 import MapComponent from "./maps/MapComponent";
-import chatComponent from './api/chat/client/page'; 
+import chatComponent from './api/chat/client/page';
 import SearchIcon from '@mui/icons-material/Search';
 import { Box, Typography, Button, TextField, InputAdornment, Container, Avatar, Menu, MenuItem } from '@mui/material';
 import { useRouter } from 'next/navigation';
@@ -13,6 +13,23 @@ export default function Home() {
   const router = useRouter(); // Initialize the router for navigation
   const { signOut } = useClerk(); // To handle sign out if needed
   const { user } = useUser(); // Fetch the current user details from Clerk
+  const [location, setLocation] = useState('');
+  const [interest, setInterest] = useState('');
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('api/user-details', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location, interest }),
+      })
+      if (response.ok) {
+        const data = await response.json();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleSignIn = () => {
     router.push('/sign-in'); // Navigate to sign-in page
@@ -168,6 +185,8 @@ export default function Home() {
           >
             {/* Location Search Bar */}
             <TextField
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
               variant="outlined"
               placeholder="Search by Location    Eg: New York"
               InputProps={{
@@ -205,6 +224,8 @@ export default function Home() {
 
             {/* Nearby Companions Search Bar */}
             <TextField
+              value={interest}
+              onChange={(e) => setInterest(e.target.value)}
               variant="outlined"
               placeholder="Search by Interests    Eg: Dance"
               InputProps={{
@@ -250,6 +271,7 @@ export default function Home() {
                 padding: '0 15px',
                 fontSize: '12px',
               }}
+              onClick={handleSubmit}
             >
               Search
             </Button>
@@ -266,7 +288,7 @@ export default function Home() {
         {/* Chat Section */}
         <Container sx={{ padding: '2rem' }}>
           <Box sx={{ height: 400 }}>
-              <chatComponent />
+            <chatComponent />
           </Box>
         </Container>
       </Box >
