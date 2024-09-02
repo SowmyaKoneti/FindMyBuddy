@@ -8,13 +8,13 @@ export async function POST(req) {
   try {
     const userDetails = await req.json();
 
-    // Validate the required fields
-    if (!userDetails.username || !userDetails.email || !userDetails.fullName || !userDetails.location || !userDetails.bio || !userDetails.areaOfInterest) {
+    // Validate the required fields including the new Address field
+    if (!userDetails.username || !userDetails.email || !userDetails.fullName || !userDetails.address || !userDetails.location || !userDetails.bio || !userDetails.areaOfInterest) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
     }
 
     // Extract additional fields with default empty values
-    const { linkedIn = '', github = '', instagram = '', twitter = '', ...rest } = userDetails;
+    const { linkedIn = '', github = '', instagram = '', twitter = '', lookingFor = '', ...rest } = userDetails; // Include 'lookingFor' with a default empty string
 
     // Create a unique document ID using email and username
     const docId = `${userDetails.username}_${userDetails.email.replace(/[@.]/g, '_')}`; // Replacing special characters to avoid Firestore ID issues
@@ -34,6 +34,8 @@ export async function POST(req) {
         github,
         instagram,
         twitter,
+        lookingFor, // Add the 'lookingFor' field to the update
+        address: userDetails.address, // Include the address field in the update
         ...rest,
         updatedAt: new Date().toISOString(), // Timestamp for last update
       }, { merge: true }); // Merge with existing data
@@ -48,6 +50,8 @@ export async function POST(req) {
         github,
         instagram,
         twitter,
+        lookingFor, // Add the 'lookingFor' field to the new document
+        address: userDetails.address, // Include the address field in the new document
         ...rest,
         createdAt: new Date().toISOString(), // Timestamp for creation
       });
