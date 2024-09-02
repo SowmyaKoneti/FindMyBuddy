@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth, useUser } from '@clerk/nextjs';
+// import { useRouter } from 'next/router';
+
 import {
   Box,
   Typography,
@@ -31,9 +33,11 @@ export default function ProfilePage() {
   const [openSettings, setOpenSettings] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
+    address: '',        // Added address field
     location: '',
     bio: '',
     areaOfInterest: '',
+    lookingFor: '',     // Added lookingFor field
     linkedIn: '',
     github: '',
     instagram: '',
@@ -62,9 +66,11 @@ export default function ProfilePage() {
         setUserData(data);
         setFormData({
           fullName: data.fullName || '',
+          address: data.address || '',          // Initialize address field
           location: data.location || '',
           bio: data.bio || '',
           areaOfInterest: data.areaOfInterest || '',
+          lookingFor: data.lookingFor || '',    // Initialize lookingFor field
           linkedIn: data.linkedIn || '',
           github: data.github || '',
           instagram: data.instagram || '',
@@ -125,14 +131,41 @@ export default function ProfilePage() {
   };
 
   const handleDeleteAccount = async () => {
-    // Logic for deleting the account
     signOut()
       .then(() => {
         window.location.href = '/';
       })
       .catch((error) => {
         console.error('Failed to log out:', error);
-      });
+    });
+    // try {
+    //   // Confirm user action before proceeding
+    //   const confirmDelete = window.confirm('Are you sure you want to delete your account? This action cannot be undone.');
+    //   if (!confirmDelete) return;
+
+    //   // Use Clerk's API to delete the current user
+    //   const response = await fetch(`/api/clerk-delete-user`, {
+    //     method: 'DELETE',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       username: clerkUser.username, 
+    //     }),
+    //   });
+
+    //   if (!response.ok) {
+    //     throw new Error('Failed to delete user from Clerk');
+    //   }
+
+    //   alert('Account deleted successfully');
+    //   // Sign out after deleting the user
+    //   await signOut();
+    //   window.location.href = '/'; // Redirect to home or landing page after deletion
+    // } catch (error) {
+    //   console.error('Failed to delete account:', error);
+    //   alert('Failed to delete account. Please try again.');
+    // }
   };
 
   if (loading) {

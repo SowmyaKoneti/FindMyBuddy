@@ -3,19 +3,21 @@
 
 import React, { useState, useRef } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation'; // Import useRouter for navigation
-import { Box, TextField, Button, Container, Typography, FormHelperText, InputAdornment, Alert } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { Box, TextField, Button, Container, Typography, InputAdornment, Alert } from '@mui/material';
 import Head from 'next/head';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 export default function UserDetailsPage() {
-  const { user } = useUser(); // Fetch logged-in user details from Clerk
-  const router = useRouter(); // Initialize router for redirection
+  const { user } = useUser();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: '',
+    address: '', // New Address field
     location: '',
     bio: '',
     areaOfInterest: '',
+    lookingFor: '', // New optional Looking For field
     linkedIn: '',
     github: '',
     instagram: '',
@@ -23,13 +25,15 @@ export default function UserDetailsPage() {
   });
 
   const [errors, setErrors] = useState({});
-  const [validFields, setValidFields] = useState({}); // Track which fields are valid
-  const [success, setSuccess] = useState(false); // Track submission success
+  const [validFields, setValidFields] = useState({});
+  const [success, setSuccess] = useState(false);
   const refs = {
     fullName: useRef(null),
+    address: useRef(null), 
     location: useRef(null),
     bio: useRef(null),
     areaOfInterest: useRef(null),
+    lookingFor: useRef(null), // Ref for Looking For field
     linkedIn: useRef(null),
     github: useRef(null),
     instagram: useRef(null),
@@ -43,6 +47,9 @@ export default function UserDetailsPage() {
       case 'fullName':
         if (!value.trim()) error = 'Full Name is required';
         else if (value.length > 50) error = 'Full Name cannot exceed 50 characters';
+        break;
+      case 'address':
+        if (!value.trim()) error = 'Address is required';
         break;
       case 'location':
         if (!value.trim()) {
@@ -70,6 +77,7 @@ export default function UserDetailsPage() {
       case 'twitter':
         if (value && !/^https:\/\/twitter\.com\/.*$/.test(value)) error = 'Enter a valid Twitter URL';
         break;
+      // No validation needed for 'lookingFor' as it's optional
       default:
         break;
     }
@@ -84,11 +92,10 @@ export default function UserDetailsPage() {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Handle field blur (when user leaves the input)
+  // Handle field blur
   const handleBlur = (e) => {
     const { name, value } = e.target;
     if (validateField(name, value)) {
-      // Move focus to the next field
       const fieldNames = Object.keys(formData);
       const currentIndex = fieldNames.indexOf(name);
       const nextField = fieldNames[currentIndex + 1];
@@ -130,7 +137,7 @@ export default function UserDetailsPage() {
         console.error('Error submitting user details:', error);
       }
     }
-  };  
+  };
 
   return (
     <Box
@@ -193,7 +200,7 @@ export default function UserDetailsPage() {
                 maxLength: field === 'fullName' ? 50 : field === 'bio' ? 150 : undefined,
               }}
               sx={{ mb: 2 }}
-              required={['fullName', 'location', 'bio', 'areaOfInterest'].includes(field)}
+              required={['fullName', 'address', 'location', 'bio', 'areaOfInterest'].includes(field)}
             />
           ))}
           <Button
