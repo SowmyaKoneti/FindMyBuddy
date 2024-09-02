@@ -1,9 +1,8 @@
+// profile/page.js
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useAuth, useUser } from '@clerk/nextjs';
-// import { useRouter } from 'next/router';
-
 import {
   Box,
   Typography,
@@ -22,6 +21,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import SettingsIcon from '@mui/icons-material/Settings';
+import FriendsComponent from '../friends/FriendsComponent'; // Import the new FriendsList component
 
 export default function ProfilePage() {
   const { signOut } = useAuth();
@@ -33,11 +33,11 @@ export default function ProfilePage() {
   const [openSettings, setOpenSettings] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
-    address: '',        // Added address field
+    address: '',
     location: '',
     bio: '',
     areaOfInterest: '',
-    lookingFor: '',     // Added lookingFor field
+    lookingFor: '',
     linkedIn: '',
     github: '',
     instagram: '',
@@ -66,11 +66,11 @@ export default function ProfilePage() {
         setUserData(data);
         setFormData({
           fullName: data.fullName || '',
-          address: data.address || '',          // Initialize address field
+          address: data.address || '',
           location: data.location || '',
           bio: data.bio || '',
           areaOfInterest: data.areaOfInterest || '',
-          lookingFor: data.lookingFor || '',    // Initialize lookingFor field
+          lookingFor: data.lookingFor || '',
           linkedIn: data.linkedIn || '',
           github: data.github || '',
           instagram: data.instagram || '',
@@ -137,35 +137,7 @@ export default function ProfilePage() {
       })
       .catch((error) => {
         console.error('Failed to log out:', error);
-    });
-    // try {
-    //   // Confirm user action before proceeding
-    //   const confirmDelete = window.confirm('Are you sure you want to delete your account? This action cannot be undone.');
-    //   if (!confirmDelete) return;
-
-    //   // Use Clerk's API to delete the current user
-    //   const response = await fetch(`/api/clerk-delete-user`, {
-    //     method: 'DELETE',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       username: clerkUser.username, 
-    //     }),
-    //   });
-
-    //   if (!response.ok) {
-    //     throw new Error('Failed to delete user from Clerk');
-    //   }
-
-    //   alert('Account deleted successfully');
-    //   // Sign out after deleting the user
-    //   await signOut();
-    //   window.location.href = '/'; // Redirect to home or landing page after deletion
-    // } catch (error) {
-    //   console.error('Failed to delete account:', error);
-    //   alert('Failed to delete account. Please try again.');
-    // }
+      });
   };
 
   if (loading) {
@@ -211,6 +183,7 @@ export default function ProfilePage() {
         alignItems: 'center',
         background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)',
         padding: '2rem',
+        position: 'relative',
       }}
     >
       {/* Top Right: Home Icon and Log Out Button */}
@@ -249,8 +222,14 @@ export default function ProfilePage() {
         </Button>
       </Box>
 
-      {/* Center: User Name, Bio, Social Icons, and Settings */}
-      <Box sx={{ textAlign: 'center', marginTop: '5rem' }}>
+      {/* Main Profile Section - Centered */}
+      <Box
+        sx={{
+          textAlign: 'center',
+          marginTop: '5rem',
+          marginBottom: '3rem',
+        }}
+      >
         <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333333' }}>
           {userData?.fullName || 'User Name'}
         </Typography>
@@ -290,22 +269,25 @@ export default function ProfilePage() {
         </Box>
       </Box>
 
+      {/* Friends List */}
+      <FriendsComponent />
+      
       {/* Edit Account Details Dialog */}
       <Dialog open={openSettings} onClose={handleSettingsClose} fullWidth maxWidth="sm">
         <DialogTitle>Edit Account Details</DialogTitle>
         <DialogContent>
-          <br></br>
+          <br />
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {Object.keys(formData).map((key) => (
               <TextField
                 key={key}
                 name={key}
-                label={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                label={key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
                 value={formData[key]}
                 onChange={handleChange}
                 disabled={key === 'email' || key === 'username'}
                 sx={{
-                  '& .MuiInputLabel-root': { color: '#333' }, // Proper label color for better visibility
+                  '& .MuiInputLabel-root': { color: '#333' },
                 }}
               />
             ))}

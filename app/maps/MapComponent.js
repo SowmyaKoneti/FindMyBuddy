@@ -249,7 +249,7 @@ const MapComponent = () => {
                                 alert(`Start chatting with ${user.fullName}`);
                             }}
                         >
-                            Chat
+                            Add Friend
                         </Button>
                     </Box>
                 ))}
