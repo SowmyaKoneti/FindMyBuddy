@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client"
 
-export default function chatComponent() {
-  const [socket, setSocket] = useState<any>(undefined)
-  const [inbox, setInbox] = useState<any>([])
+export default function ChatComponent() {
+  const [socket, setSocket] = useState(undefined)
+  const [inbox, setInbox] = useState([])
   const [message, setMessage] = useState("")
   const [roomName, setRoomName] = useState("")
 
