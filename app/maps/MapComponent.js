@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import { Box, Button, Typography } from '@mui/material';
 import { getDistance } from 'geolib';
@@ -13,6 +14,7 @@ const MapComponent = () => {
     const [users, setUsers] = useState([]); // State to hold users fetched from API
     const mapRef = useRef(null);
     const maxDistance = 5000;
+    const router = useRouter();
 
     const containerStyle = {
         width: "100%",
@@ -184,10 +186,12 @@ const MapComponent = () => {
                                     variant="contained"
                                     color="primary"
                                     size="small"
-                                    fullWidth
                                     style={{ marginTop: '5px' }}
-                                    onClick={() => alert(`Start chatting with ${selectedUser.fullName}`)}
-                                >
+                                    onClick={(e) => {
+                                        e.stopPropagation(); // Prevent click event from triggering on parent Box
+                                        router.push(`../profile?email=${encodeURIComponent(user.email)}&username=${encodeURIComponent(user.username)}`);
+                                    }}
+                                    >
                                     Chat
                                 </Button>
                             </Box>
@@ -246,10 +250,11 @@ const MapComponent = () => {
                             style={{ marginTop: '5px' }}
                             onClick={(e) => {
                                 e.stopPropagation(); // Prevent click event from triggering on parent Box
-                                alert(`Start chatting with ${user.fullName}`);
+                                console.log("from main page:" ,user.email,user.username )
+                                router.push(`../profile?email=${encodeURIComponent(user.email)}&username=${encodeURIComponent(user.username)}`);
                             }}
                         >
-                            Add Friend
+                            Chat
                         </Button>
                     </Box>
                 ))}

@@ -1,12 +1,17 @@
-// chats/ChatsComponent.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Button, IconButton } from '@mui/material';
-import { ArrowDropUp, Close } from '@mui/icons-material';
+import { ArrowDropUp, Close, PersonAdd } from '@mui/icons-material';
+import { useUser } from '@clerk/nextjs';
 
 const ChatsComponent = ({ friend, onClose }) => {
+  const { user: clerkUser } = useUser(); // Current user details
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [minimized, setMinimized] = useState(false); // State to minimize the chat
+  const [isFriend, setIsFriend] = useState(false); // State to check if the friend is already added
+
+  // Log the friend data to verify it is being passed correctly
+  console.log('Received friend data:', friend);
 
   const handleSendMessage = () => {
     if (input.trim()) {
@@ -15,6 +20,78 @@ const ChatsComponent = ({ friend, onClose }) => {
       // Logic to send message to the backend can be added here
     }
   };
+
+  useEffect(() => {
+    if (!clerkUser || !friend) return; // Check that clerkUser and friend are defined
+
+    // Check if the friend is already in the friends list from the cache
+    const checkIfFriend = async () => {
+      try {
+        const response = await fetch(`/api/friends-list?username=${clerkUser.username}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch friends list');
+        }
+        const data = await response.json();
+        setIsFriend(data.friends.includes(friend.username));
+      } catch (error) {
+        console.error('Failed to check friends list:', error);
+      }
+    };
+
+    checkIfFriend();
+  }, [clerkUser, friend]);
+
+  const handleAddFriend = async () => {
+    if (!clerkUser || !friend) return; // Ensure that clerkUser and friend are defined
+
+    try {
+      // Add friend to the user's friends list in the database
+      const response = await fetch(`/api/friends-list`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentUser: clerkUser.username,
+          friendUsername: friend.username,
+        }),
+      });
+
+      if (response.ok) {
+        setIsFriend(true);
+        alert(`${friend.fullName} has been added to your friends list.`);
+      } else {
+        throw new Error('Failed to add friend');
+      }
+    } catch (error) {
+      console.error('Error adding friend:', error);
+    }
+  };
+
+  if (!friend) {
+    return (
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: '1rem',
+          right: '1rem',
+          width: '400px',
+          height: '100px',
+          backgroundColor: '#fff',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+          borderRadius: '8px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '1rem',
+        }}
+      >
+        <Typography variant="body1" sx={{ color: '#666' }}>
+          Loading chat...
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -44,7 +121,12 @@ const ChatsComponent = ({ friend, onClose }) => {
         }}
       >
         <Typography variant="subtitle1">{friend.fullName}</Typography>
-        <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {!isFriend && (
+            <IconButton onClick={handleAddFriend} sx={{ color: '#fff' }}>
+              <PersonAdd />
+            </IconButton>
+          )}
           <IconButton onClick={() => setMinimized(!minimized)} sx={{ color: '#fff' }}>
             {minimized ? <ArrowDropUp /> : <ArrowDropUp style={{ transform: 'rotate(180deg)' }} />}
           </IconButton>

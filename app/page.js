@@ -171,7 +171,8 @@ export default function Home() {
             variant="h2"
             sx={{
               marginBottom: '1rem',
-              fontWeight: 'bold',
+              fontWeight: 700,
+              fontSize: '45px',
               fontFamily: 'Poppins, sans-serif',
               letterSpacing: '1.2px',
               color: '#3996d4',

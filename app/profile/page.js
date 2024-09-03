@@ -1,6 +1,6 @@
-// profile/page.js
 'use client';
 
+import { useSearchParams } from 'next/navigation'; 
 import React, { useEffect, useState } from 'react';
 import { useAuth, useUser } from '@clerk/nextjs';
 import {
@@ -28,12 +28,54 @@ import ChatsComponent from '../chats/ChatsComponent';        // Updated path
 export default function ProfilePage() {
   const { signOut } = useAuth();
   const { user: clerkUser } = useUser();
-
+  const searchParams = useSearchParams();
+  const [chatUser, setChatUser] = useState('');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [openSettings, setOpenSettings] = useState(false);
   const [activeChat, setActiveChat] = useState(null); // State to handle active chat
+
+  // useEffect to set chatUser once router query is available
+  useEffect(() => {
+    const email = searchParams.get('email') || '';
+    const username = searchParams.get('username') || '';
+    console.log('Search params:', { email, username }); // Debugging: Check search parameters
+    if (email && username) {
+      setChatUser({ email, username });
+      console.log('Set chatUser with:', { email, username });
+    } else {
+      console.warn('Email or username is missing in search parameters');
+    }
+  }, [searchParams]);
+
+  // Fetch user data when chatUser is set
+  useEffect(() => {
+    if (chatUser && chatUser.email && chatUser.username) {
+      console.log("Fetching data for chatUser:", chatUser);
+      fetch(`/api/user-details?email=${encodeURIComponent(chatUser.email)}&username=${encodeURIComponent(chatUser.username)}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch user details');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data) {
+            console.log("Fetched chat data:", data); // Log the fetched data
+            setActiveChat(data); // Ensure data exists before setting
+          } else {
+            console.log("No data found for chatUser");
+          }
+        })
+        .catch(err => console.error('Failed to fetch user details for chat:', err));
+    }
+  }, [chatUser]);
+
+  // Add console.log to check activeChat
+  useEffect(() => {
+    console.log("Current activeChat:", activeChat);
+  }, [activeChat]);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -48,24 +90,30 @@ export default function ProfilePage() {
     twitter: '',
   });
 
+  // Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       if (!clerkUser) return;
-
+  
       try {
+        // Extract email and username from the clerkUser object
+        const email = clerkUser.emailAddresses[0]?.emailAddress; // Adjust if the structure is different
+        const username = clerkUser.username;
+  
+        if (!email || !username) {
+          throw new Error('Email or username is missing');
+        }
+  
+        // Fetch user details using both email and username in the query params
         const response = await fetch(
-          `/api/user-details?email=${encodeURIComponent(
-            clerkUser.emailAddresses[0]?.emailAddress
-          )}&username=${encodeURIComponent(clerkUser.username)}`,
-          {
-            method: 'GET',
-          }
+          `/api/user-details?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`,
+          { method: 'GET' }
         );
-
+  
         if (!response.ok) {
           throw new Error('Failed to fetch user details');
         }
-
+  
         const data = await response.json();
         setUserData(data);
         setFormData({
@@ -87,7 +135,7 @@ export default function ProfilePage() {
         setLoading(false);
       }
     };
-
+  
     fetchUserData();
   }, [clerkUser]);
 
@@ -114,9 +162,7 @@ export default function ProfilePage() {
     try {
       const response = await fetch('/api/user-details', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
           username: clerkUser.username,
@@ -191,12 +237,7 @@ export default function ProfilePage() {
     >
       {/* Top Right: Home Icon and Log Out Button */}
       <Box sx={{ position: 'fixed', top: '1rem', right: '1rem', display: 'flex', gap: '0.5rem' }}>
-        <IconButton
-          onClick={() => (window.location.href = '/')}
-          sx={{
-            color: '#555',
-          }}
-        >
+        <IconButton onClick={() => (window.location.href = '/')} sx={{ color: '#555' }}>
           <HomeIcon />
         </IconButton>
         <IconButton onClick={handleSettingsOpen} sx={{ color: '#555' }}>
@@ -207,9 +248,7 @@ export default function ProfilePage() {
           sx={{
             background: 'linear-gradient(to right, #4f758f, #449fdb)',
             color: '#ffffff',
-            '&:hover': {
-              background: 'linear-gradient(to right, #3b5f7a, #307fcc)',
-            },
+            '&:hover': { background: 'linear-gradient(to right, #3b5f7a, #307fcc)' },
           }}
           onClick={() => {
             signOut()
@@ -226,12 +265,7 @@ export default function ProfilePage() {
       </Box>
 
       {/* Center: User Details */}
-      <Box
-        sx={{
-          textAlign: 'center',
-          marginTop: '5rem',
-        }}
-      >
+      <Box sx={{ textAlign: 'center', marginTop: '5rem' }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333333' }}>
           {userData?.fullName || 'User Name'}
         </Typography>
@@ -245,28 +279,16 @@ export default function ProfilePage() {
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
           {userData?.linkedIn && (
-            <LinkedInIcon
-              sx={{ color: '#0077b5', cursor: 'pointer' }}
-              onClick={() => handleNavigation(userData.linkedIn)}
-            />
+            <LinkedInIcon sx={{ color: '#0077b5', cursor: 'pointer' }} onClick={() => handleNavigation(userData.linkedIn)} />
           )}
           {userData?.github && (
-            <GitHubIcon
-              sx={{ color: '#333333', cursor: 'pointer' }}
-              onClick={() => handleNavigation(userData.github)}
-            />
+            <GitHubIcon sx={{ color: '#333333', cursor: 'pointer' }} onClick={() => handleNavigation(userData.github)} />
           )}
           {userData?.twitter && (
-            <TwitterIcon
-              sx={{ color: '#1DA1F2', cursor: 'pointer' }}
-              onClick={() => handleNavigation(userData.twitter)}
-            />
+            <TwitterIcon sx={{ color: '#1DA1F2', cursor: 'pointer' }} onClick={() => handleNavigation(userData.twitter)} />
           )}
           {userData?.instagram && (
-            <InstagramIcon
-              sx={{ color: '#E1306C', cursor: 'pointer' }}
-              onClick={() => handleNavigation(userData.instagram)}
-            />
+            <InstagramIcon sx={{ color: '#E1306C', cursor: 'pointer' }} onClick={() => handleNavigation(userData.instagram)} />
           )}
         </Box>
       </Box>
@@ -275,18 +297,22 @@ export default function ProfilePage() {
       <FriendsComponent onChatClick={(friend) => setActiveChat(friend)} />
 
       {/* Chat Box */}
-      {activeChat && (
+      {activeChat ? (
         <ChatsComponent
-          friend={activeChat} // Pass the selected friend's data including full name
-          onClose={() => setActiveChat(null)}
+          friend={activeChat}
+          onClose={() => {
+            console.log('Closing chat component');
+            setActiveChat(null);
+          }}
         />
+      ) : (
+        console.log('Chat box is not rendered as activeChat is:', activeChat)
       )}
 
       {/* Edit Account Details Dialog */}
       <Dialog open={openSettings} onClose={handleSettingsClose} fullWidth maxWidth="sm">
         <DialogTitle>Edit Account Details</DialogTitle>
         <DialogContent>
-          <br />
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {Object.keys(formData).map((key) => (
               <TextField
@@ -297,7 +323,8 @@ export default function ProfilePage() {
                 onChange={handleChange}
                 disabled={key === 'email' || key === 'username'}
                 sx={{
-                  '& .MuiInputLabel-root': { color: '#333' },
+                  '& .MuiInputLabel-root': { color: '#aaa' }, // Lighter color for label
+                  '& .MuiInputBase-input': { color: '#333' }, // Darker color for input value
                 }}
               />
             ))}
@@ -311,10 +338,7 @@ export default function ProfilePage() {
               fontWeight: 'bold',
               boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.2)',
               transition: 'transform 0.2s',
-              '&:hover': {
-                boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.3)',
-                transform: 'scale(1.05)',
-              },
+              '&:hover': { boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.3)', transform: 'scale(1.05)' },
             }}
           >
             Cancel
@@ -326,10 +350,7 @@ export default function ProfilePage() {
               fontWeight: 'bold',
               boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.2)',
               transition: 'transform 0.2s',
-              '&:hover': {
-                boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.3)',
-                transform: 'scale(1.05)',
-              },
+              '&:hover': { boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.3)', transform: 'scale(1.05)' },
             }}
           >
             Save
@@ -341,10 +362,7 @@ export default function ProfilePage() {
               fontWeight: 'bold',
               boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.2)',
               transition: 'transform 0.2s',
-              '&:hover': {
-                boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.3)',
-                transform: 'scale(1.05)',
-              },
+              '&:hover': { boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.3)', transform: 'scale(1.05)' },
             }}
           >
             Delete Account
