@@ -1,6 +1,6 @@
 'use client'; // Mark this as a Client Component
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Head from "next/head";
 import { SignedIn, SignedOut, useClerk, useUser } from "@clerk/nextjs";
 import MapComponent from "./maps/MapComponent";
@@ -8,6 +8,9 @@ import chatComponent from './api/chat/client/page';
 import SearchIcon from '@mui/icons-material/Search';
 import { Box, Typography, Button, TextField, InputAdornment, Container, Avatar, Menu, MenuItem } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { useLoadScript, Autocomplete } from '@react-google-maps/api';
+
+const libraries = ['places'];
 
 export default function Home() {
   const router = useRouter(); // Initialize the router for navigation
@@ -15,6 +18,26 @@ export default function Home() {
   const { user } = useUser(); // Fetch the current user details from Clerk
   const [location, setLocation] = useState('');
   const [interest, setInterest] = useState('');
+  const [autocomplete, setAutocomplete] = useState(null);
+
+  // Load the Google Maps script
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
+
+  // Callback for when the Autocomplete component is loaded
+  const onLoad = useCallback((autocomplete) => {
+    setAutocomplete(autocomplete);
+  }, []);
+
+  // Callback for when a place is selected
+  const onPlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      setLocation(place.formatted_address || '');
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -184,43 +207,50 @@ export default function Home() {
             }}
           >
             {/* Location Search Bar */}
-            <TextField
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              variant="outlined"
-              placeholder="Search by Location    Eg: New York"
-              InputProps={{
-                sx: {
-                  color: '#000000', // Text color
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'transparent', // Remove default border
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'transparent', // Keep border transparent on hover
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'transparent', // Keep border transparent when focused
-                  },
-                },
-                // endAdornment: (
-                //   <InputAdornment position="end">
-                //     <SearchIcon sx={{ color: '#000000' }} /> {/* Dark icon color for contrast */}
-                //   </InputAdornment>
-                // ),
-              }}
-              sx={{
-                backgroundColor: '#FFFFFF', // White background for the input
-                borderRadius: '0px',
-                width: '350px', // Set width for consistency
-                '& .MuiOutlinedInput-root': {
-                  padding: '8px 12px', // Adequate padding inside the input
-                },
-                '& .MuiInputBase-input': {
-                  padding: '8px 12px', // Padding for input text
-                },
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-              }}
-            />
+            {isLoaded && (
+              <Autocomplete
+                onLoad={onLoad}
+                onPlaceChanged={onPlaceChanged}
+              >
+                <TextField
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  variant="outlined"
+                  placeholder="Search by Location    Eg: New York"
+                  InputProps={{
+                    sx: {
+                      color: '#000000', // Text color
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'transparent', // Remove default border
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'transparent', // Keep border transparent on hover
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'transparent', // Keep border transparent when focused
+                      },
+                    },
+                    // endAdornment: (
+                    //   <InputAdornment position="end">
+                    //     <SearchIcon sx={{ color: '#000000' }} /> {/* Dark icon color for contrast */}
+                    //   </InputAdornment>
+                    // ),
+                  }}
+                  sx={{
+                    backgroundColor: '#FFFFFF', // White background for the input
+                    borderRadius: '0px',
+                    width: '350px', // Set width for consistency
+                    '& .MuiOutlinedInput-root': {
+                      padding: '8px 12px', // Adequate padding inside the input
+                    },
+                    '& .MuiInputBase-input': {
+                      padding: '8px 12px', // Padding for input text
+                    },
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+                  }}
+                />
+              </Autocomplete>
+            )}
 
             {/* Nearby Companions Search Bar */}
             <TextField
@@ -281,7 +311,11 @@ export default function Home() {
         {/* Map Section */}
         <Container sx={{ padding: '2rem' }}>
           <Box sx={{ height: 400 }}>
-            <MapComponent />
+            {isLoaded ? (
+              <MapComponent />
+            ) : (
+              <div>Loading Map...</div>
+            )}
           </Box>
         </Container>
 
