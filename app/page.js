@@ -320,11 +320,11 @@ export default function Home() {
         </Container>
 
         {/* Chat Section */}
-        <Container sx={{ padding: '2rem' }}>
+        {/* <Container sx={{ padding: '2rem' }}>
           <Box sx={{ height: 400 }}>
             <chatComponent />
           </Box>
-        </Container>
+        </Container> */}
       </Box >
     </>
   );
