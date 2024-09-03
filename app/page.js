@@ -4,7 +4,6 @@ import React, { useState, useCallback } from 'react';
 import Head from "next/head";
 import { SignedIn, SignedOut, useClerk, useUser } from "@clerk/nextjs";
 import MapComponent from "./maps/MapComponent";
-import chatComponent from './api/chat/client/page';
 import SearchIcon from '@mui/icons-material/Search';
 import { Box, Typography, Button, TextField, InputAdornment, Container, Avatar, Menu, MenuItem } from '@mui/material';
 import { useRouter } from 'next/navigation';
@@ -318,13 +317,6 @@ export default function Home() {
             )}
           </Box>
         </Container>
-
-        {/* Chat Section */}
-        {/* <Container sx={{ padding: '2rem' }}>
-          <Box sx={{ height: 400 }}>
-            <chatComponent />
-          </Box>
-        </Container> */}
       </Box >
     </>
   );
