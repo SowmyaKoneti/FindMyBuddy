@@ -138,63 +138,63 @@ const MapComponent = () => {
                     flexDirection: 'column',
                 }}
             >
-                <LoadScript googleMapsApiKey={GEOCODING_API_KEY}>
-                    <GoogleMap
-                        mapContainerStyle={containerStyle}
-                        center={center}
-                        zoom={15}
-                        onLoad={onMapLoad}
-                        onZoomChanged={onZoomChanged}
-                    >
-                        <Marker position={center} label="You" />
-                        {visibleUsers.map((user, index) => (
-                            <Marker
-                                key={index}
-                                position={{ lat: user.lat, lng: user.lng }}
-                                icon={{ url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }}
-                                onMouseOver={() => setSelectedUser(user)}
-                            />
-                        ))}
-                        {selectedUser && (
-                            <InfoWindow
-                                position={{ lat: selectedUser.lat, lng: selectedUser.lng }}
-                                onCloseClick={() => setSelectedUser(null)}
-                                options={{
-                                    pixelOffset: new window.google.maps.Size(0, -30),
-                                    disableAutoPan: true,
+                {/* <LoadScript googleMapsApiKey={GEOCODING_API_KEY}> */}
+                <GoogleMap
+                    mapContainerStyle={containerStyle}
+                    center={center}
+                    zoom={15}
+                    onLoad={onMapLoad}
+                    onZoomChanged={onZoomChanged}
+                >
+                    <Marker position={center} label="You" />
+                    {visibleUsers.map((user, index) => (
+                        <Marker
+                            key={index}
+                            position={{ lat: user.lat, lng: user.lng }}
+                            icon={{ url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }}
+                            onMouseOver={() => setSelectedUser(user)}
+                        />
+                    ))}
+                    {selectedUser && (
+                        <InfoWindow
+                            position={{ lat: selectedUser.lat, lng: selectedUser.lng }}
+                            onCloseClick={() => setSelectedUser(null)}
+                            options={{
+                                pixelOffset: new window.google.maps.Size(0, -30),
+                                disableAutoPan: true,
+                            }}
+                        >
+                            <Box
+                                style={{
+                                    textAlign: 'center',
+                                    padding: '5px',
+                                    width: '150px',
+                                    borderRadius: '8px',
+                                    boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
+                                    backgroundColor: '#fff',
                                 }}
                             >
-                                <Box
-                                    style={{
-                                        textAlign: 'center',
-                                        padding: '5px',
-                                        width: '150px',
-                                        borderRadius: '8px',
-                                        boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
-                                        backgroundColor: '#fff',
-                                    }}
+                                <Typography variant="subtitle2" gutterBottom>
+                                    {selectedUser.fullName}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    Rating: {selectedUser.rating}
+                                </Typography>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    fullWidth
+                                    style={{ marginTop: '5px' }}
+                                    onClick={() => alert(`Start chatting with ${selectedUser.fullName}`)}
                                 >
-                                    <Typography variant="subtitle2" gutterBottom>
-                                        {selectedUser.fullName}
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Rating: {selectedUser.rating}
-                                    </Typography>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        size="small"
-                                        fullWidth
-                                        style={{ marginTop: '5px' }}
-                                        onClick={() => alert(`Start chatting with ${selectedUser.fullName}`)}
-                                    >
-                                        Chat
-                                    </Button>
-                                </Box>
-                            </InfoWindow>
-                        )}
-                    </GoogleMap>
-                </LoadScript>
+                                    Chat
+                                </Button>
+                            </Box>
+                        </InfoWindow>
+                    )}
+                </GoogleMap>
+                {/* </LoadScript> */}
             </Box>
             <Box
                 sx={{
