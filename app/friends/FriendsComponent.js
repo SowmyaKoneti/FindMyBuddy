@@ -27,7 +27,14 @@ const FriendsComponent = ({ onChatClick }) => {
   };
 
   useEffect(() => {
-    fetchFriends(); // Fetch friends when the component mounts
+    // Fetch friends when the component mounts
+    fetchFriends();
+
+    // Set up polling every 10 seconds (10000 milliseconds)
+    const intervalId = setInterval(fetchFriends, 10000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, [clerkUser]);
 
   // Logic to remove a friend from the list
@@ -35,10 +42,6 @@ const FriendsComponent = ({ onChatClick }) => {
     if (!clerkUser || !friend) return; // Ensure clerkUser and friend are defined
 
     try {
-      // Construct the current user's document ID and the friend's document ID
-      const currentUserDocId = `${clerkUser.username}_${clerkUser.emailAddresses[0].emailAddress.replace(/[@.]/g, '_')}`;
-      const friendDocId = `${friend.username}_${friend.email.replace(/[@.]/g, '_')}`;
-
       // Send request to remove friend
       const response = await fetch(`/api/friends-list`, {
         method: 'DELETE',
