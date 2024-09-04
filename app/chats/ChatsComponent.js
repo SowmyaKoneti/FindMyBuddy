@@ -2,41 +2,97 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Button, IconButton } from '@mui/material';
 import { ArrowDropUp, Close, PersonAdd } from '@mui/icons-material';
 import { useUser } from '@clerk/nextjs';
+import socket from '../utils/socket'; // Import the socket instance for real-time messaging
 
 const ChatsComponent = ({ friend, onClose }) => {
-  const { user: clerkUser } = useUser(); 
+  const { user: clerkUser } = useUser();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [minimized, setMinimized] = useState(false); 
-  const [isFriend, setIsFriend] = useState(false); 
+  const [minimized, setMinimized] = useState(false);
+  const [isFriend, setIsFriend] = useState(false);
+  
+  // Construct chat ID based on usernames and emails
+  const chatId = `${[clerkUser.username, friend.username].sort().join('_')}_${[clerkUser.emailAddresses[0].emailAddress, friend.email].sort().join('_')}`;
 
-  // Log the friend data to verify it is being passed correctly
-  console.log('Received friend data:', friend);
+  useEffect(() => {
+    if (!clerkUser || !friend) return;
+
+    // Fetch existing chat messages from Firestore
+    const fetchChatHistory = async () => {
+      try {
+        const response = await fetch(`/api/chats?sender=${encodeURIComponent(clerkUser.username)}&receiver=${encodeURIComponent(friend.username)}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch chat messages');
+        }
+        const data = await response.json();
+        setMessages(data); // Set messages in the state
+      } catch (error) {
+        console.error('Failed to fetch chat messages:', error);
+      }
+    };
+
+    fetchChatHistory();
+
+    // Join the chat room for real-time messaging
+    socket.emit('joinRoom', { chatId });
+
+    // Listen for incoming messages from Socket.IO
+    socket.on('receiveMessage', ({ from, message, timestamp }) => {
+      setMessages((prevMessages) => [...prevMessages, { sender: from, text: message, timestamp }]);
+    });
+
+    // Cleanup function to leave the room and remove listeners on component unmount
+    return () => {
+      socket.emit('leaveRoom', { chatId });
+      socket.off('receiveMessage');
+    };
+  }, [clerkUser, friend, chatId]);
 
   const handleSendMessage = () => {
     if (input.trim()) {
-      setMessages((prevMessages) => [...prevMessages, { sender: 'Me', text: input }]);
-      setInput('');
-      // Logic to send message to the backend can be added here
+      const message = input.trim();
+      const timestamp = new Date().toISOString();
+
+      // Emit the message via Socket.IO to the server
+      socket.emit('sendMessage', {
+        chatId,
+        from: clerkUser.username,
+        to: friend.username,
+        message,
+        timestamp,
+      });
+
+      // Send the message to the server to be stored in Firestore
+      fetch('/api/chats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sender: clerkUser.username,
+          receiver: friend.username,
+          message,
+          timestamp,
+        }),
+      }).catch((err) => console.error('Failed to store message:', err));
+
+      // Update state with the new message locally
+      setMessages((prevMessages) => [...prevMessages, { sender: 'Me', text: message, timestamp }]);
+      setInput(''); // Clear the input field
     }
   };
 
+  // Check if the selected friend is already in the user's friends list
   useEffect(() => {
-    if (!clerkUser || !friend) return; 
-
-    // Check if friend exists
     const checkIfFriend = async () => {
       try {
-        // Fetch friends list for the current user
         const response = await fetch(`/api/friends-list?email=${encodeURIComponent(clerkUser.emailAddresses[0].emailAddress)}&username=${encodeURIComponent(clerkUser.username)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch friends list');
         }
         const data = await response.json();
-        
         const friendDocId = `${friend.username}_${friend.email.replace(/[@.]/g, '_')}`;
-        
-        setIsFriend(data.some(f => f.id === friendDocId));
+        setIsFriend(data.some((f) => f.id === friendDocId));
       } catch (error) {
         console.error('Failed to check friends list:', error);
       }
@@ -45,9 +101,9 @@ const ChatsComponent = ({ friend, onClose }) => {
     checkIfFriend();
   }, [clerkUser, friend]);
 
-  // Add friend to friend list in backend database
+  // Add the friend to the current user's friends list
   const handleAddFriend = async () => {
-    if (!clerkUser || !friend) return; 
+    if (!clerkUser || !friend) return;
 
     try {
       const response = await fetch(`/api/friends-list`, {
@@ -74,6 +130,7 @@ const ChatsComponent = ({ friend, onClose }) => {
     }
   };
 
+  // If the friend object is not yet loaded, show a loading message
   if (!friend) {
     return (
       <Box
@@ -99,6 +156,7 @@ const ChatsComponent = ({ friend, onClose }) => {
     );
   }
 
+  // Render the chat box with messages
   return (
     <Box
       sx={{
@@ -144,8 +202,16 @@ const ChatsComponent = ({ friend, onClose }) => {
       {!minimized && (
         <Box sx={{ flex: 1, padding: '0.5rem', overflowY: 'auto' }}>
           {messages.map((message, index) => (
-            <Typography key={index} sx={{ marginBottom: '0.5rem', textAlign: message.sender === 'Me' ? 'right' : 'left' }}>
-              <strong>{message.sender}: </strong>{message.text}
+            <Typography
+              key={index}
+              sx={{
+                marginBottom: '0.5rem',
+                textAlign: message.sender === 'Me' ? 'right' : 'left',
+                color: message.sender === 'Me' ? '#0077b5' : '#333',
+              }}
+            >
+              <strong>{message.sender === 'Me' ? 'You' : message.sender}: </strong>
+              {message.text}
             </Typography>
           ))}
         </Box>
