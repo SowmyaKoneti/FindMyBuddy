@@ -38,6 +38,7 @@ export async function POST(req) {
         address: userDetails.address, // Include the address field in the update
         ...rest,
         updatedAt: new Date().toISOString(), // Timestamp for last update
+        friends: existingDoc.data().friends || [], // Preserve existing friends list or set it empty if missing
       }, { merge: true }); // Merge with existing data
 
       console.log(`User details updated successfully for document ID: ${docId}`);
@@ -54,6 +55,7 @@ export async function POST(req) {
         address: userDetails.address, // Include the address field in the new document
         ...rest,
         createdAt: new Date().toISOString(), // Timestamp for creation
+        friends: [], // Initialize friends list as empty
       });
 
       console.log(`User details added successfully with document ID: ${docId}`);

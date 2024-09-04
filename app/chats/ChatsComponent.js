@@ -27,12 +27,18 @@ const ChatsComponent = ({ friend, onClose }) => {
     // Check if the friend is already in the friends list from the cache
     const checkIfFriend = async () => {
       try {
-        const response = await fetch(`/api/friends-list?username=${clerkUser.username}`);
+        // Fetch friends list for the current user
+        const response = await fetch(`/api/friends-list?email=${encodeURIComponent(clerkUser.emailAddresses[0].emailAddress)}&username=${encodeURIComponent(clerkUser.username)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch friends list');
         }
         const data = await response.json();
-        setIsFriend(data.friends.includes(friend.username));
+        
+        // Construct the friend's document ID using the friend's username and email
+        const friendDocId = `${friend.username}_${friend.email.replace(/[@.]/g, '_')}`;
+        
+        // Check if the friend's document ID exists in the user's friends list
+        setIsFriend(data.some(f => f.id === friendDocId));
       } catch (error) {
         console.error('Failed to check friends list:', error);
       }
@@ -45,14 +51,16 @@ const ChatsComponent = ({ friend, onClose }) => {
     if (!clerkUser || !friend) return; // Ensure that clerkUser and friend are defined
 
     try {
-      // Add friend to the user's friends list in the database
+      // Add friend to the user's friends list in the database using the simplified JSON structure
       const response = await fetch(`/api/friends-list`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          currentUser: clerkUser.username,
+          currentUserEmail: clerkUser.emailAddresses[0].emailAddress,
+          currentUserUsername: clerkUser.username,
+          friendEmail: friend.email,
           friendUsername: friend.username,
         }),
       });

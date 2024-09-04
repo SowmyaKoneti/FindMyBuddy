@@ -1,65 +1,36 @@
 import { db } from '../../../firebase'; // Firestore import
-import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 
-let friendsCache = {}; // In-memory object to store friends lists
-
-// Function to fetch friends list from Firestore and update the cache
-const updateFriendsCache = async (username) => {
-  try {
-    const userDocRef = doc(collection(db, 'user-friends'), username);
-    const userDoc = await getDoc(userDocRef);
-
-    if (userDoc.exists()) {
-      friendsCache[username] = userDoc.data().friends || [];
-    } else {
-      friendsCache[username] = [];
-    }
-  } catch (error) {
-    console.error('Error updating friends cache:', error);
-  }
-};
-
-// API handler
-export async function GET(req) {
-  const { searchParams } = new URL(req.url);
-  const username = searchParams.get('username');
-
-  if (!username) {
-    return new Response(JSON.stringify({ error: 'Missing username parameter' }), { status: 400 });
-  }
-
-  // Check if friends list is already cached
-  if (!friendsCache[username]) {
-    await updateFriendsCache(username); // Load friends list from database if not cached
-  }
-
-  return new Response(JSON.stringify({ friends: friendsCache[username] || [] }), { status: 200 });
-}
-
+// Function to add a friend to the current user's friend list
+// Input {
+//   "currentUserEmail": "currentuser@example.com",
+//   "currentUserUsername": "currentuser",
+//   "friendEmail": "friend@example.com",
+//   "friendUsername": "friend"
+// }
 export async function POST(req) {
   try {
-    const { currentUser, friendUsername } = await req.json();
+    const { currentUserEmail, currentUserUsername, friendEmail, friendUsername } = await req.json();
 
-    // Update Firestore
-    const userDocRef = doc(collection(db, 'user-friends'), currentUser);
-    const userDoc = await getDoc(userDocRef);
+    // Construct the document IDs for both users
+    const currentUserDocId = `${currentUserUsername}_${currentUserEmail.replace(/[@.]/g, '_')}`;
+    const friendDocId = `${friendUsername}_${friendEmail.replace(/[@.]/g, '_')}`;
 
-    if (!userDoc.exists()) {
-      await setDoc(userDocRef, { friends: [friendUsername] });
-    } else {
-      const currentFriends = userDoc.data().friends || [];
-      if (!currentFriends.includes(friendUsername)) {
-        await updateDoc(userDocRef, { friends: arrayUnion(friendUsername) });
-      }
+    // Reference to the current user's document in Firestore
+    const currentUserDocRef = doc(collection(db, 'users'), currentUserDocId);
+
+    // Fetch the current user's document
+    const currentUserDoc = await getDoc(currentUserDocRef);
+
+    if (!currentUserDoc.exists()) {
+      return new Response(JSON.stringify({ error: 'Current user not found' }), { status: 404 });
     }
 
-    // Update cache
-    if (!friendsCache[currentUser]) {
-      friendsCache[currentUser] = [];
-    }
-    if (!friendsCache[currentUser].includes(friendUsername)) {
-      friendsCache[currentUser].push(friendUsername);
-    }
+    // Update the current user's friends list with the friend's document ID
+    // Input : GET /api/friends-list?email=friend@example.com&username=friendusername
+    await updateDoc(currentUserDocRef, {
+      friends: arrayUnion(friendDocId),
+    });
 
     return new Response(JSON.stringify({ message: 'Friend added successfully' }), { status: 200 });
   } catch (error) {
@@ -68,22 +39,55 @@ export async function POST(req) {
   }
 }
 
-export async function DELETE(req) {
-  try {
-    const { currentUser, friendUsername } = await req.json();
-
-    // Update Firestore
-    const userDocRef = doc(collection(db, 'user-friends'), currentUser);
-    await updateDoc(userDocRef, { friends: arrayRemove(friendUsername) });
-
-    // Update cache
-    if (friendsCache[currentUser]) {
-      friendsCache[currentUser] = friendsCache[currentUser].filter(friend => friend !== friendUsername);
+// GET request to fetch all friends of the current user
+// Input: GET /api/friends-list?email=currentuser@example.com&username=currentusername
+export async function GET(req) {
+    try {
+      // Extract the current user's email and username from the query parameters
+      const { searchParams } = new URL(req.url);
+      const userEmail = searchParams.get('email');
+      const userUsername = searchParams.get('username');
+  
+      // Validate that both email and username are provided
+      if (!userEmail || !userUsername) {
+        return new Response(JSON.stringify({ error: 'Missing email or username parameter' }), { status: 400 });
+      }
+  
+      // Construct the current user's document ID using username and email
+      const userDocId = `${userUsername}_${userEmail.replace(/[@.]/g, '_')}`;
+  
+      // Reference the user's document in Firestore
+      const userDocRef = doc(collection(db, 'users'), userDocId);
+  
+      // Fetch the user's document from Firestore
+      const userDoc = await getDoc(userDocRef);
+  
+      if (!userDoc.exists()) {
+        // Return an error if the user's document does not exist
+        console.log(`User not found for document ID: ${userDocId}`);
+        return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
+      }
+  
+      // Retrieve the friends list from the user's document
+      const userData = userDoc.data();
+      const friendsList = userData.friends || []; // Default to an empty array if friends field is missing
+  
+      // Fetch details for each friend using their document IDs
+      const friendsDetails = await Promise.all(
+        friendsList.map(async (friendDocId) => {
+          const friendDocRef = doc(collection(db, 'users'), friendDocId);
+          const friendDoc = await getDoc(friendDocRef);
+          return friendDoc.exists() ? { id: friendDocId, ...friendDoc.data() } : null;
+        })
+      );
+  
+      // Filter out any null values (friends that were not found)
+      const validFriendsDetails = friendsDetails.filter(friend => friend !== null);
+  
+      // Return the friends' details in the response
+      return new Response(JSON.stringify(validFriendsDetails), { status: 200 });
+    } catch (error) {
+      console.error('Error fetching friends list:', error);
+      return new Response(JSON.stringify({ error: 'Failed to fetch friends list' }), { status: 500 });
     }
-
-    return new Response(JSON.stringify({ message: 'Friend removed successfully' }), { status: 200 });
-  } catch (error) {
-    console.error('Error removing friend:', error);
-    return new Response(JSON.stringify({ error: 'Failed to remove friend' }), { status: 500 });
   }
-}
