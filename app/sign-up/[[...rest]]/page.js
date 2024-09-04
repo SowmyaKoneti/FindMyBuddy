@@ -12,7 +12,7 @@ export default function SignUpPage() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)', // Gradient background
+        background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)', 
         padding: 3,
       }}
     >
@@ -27,13 +27,13 @@ export default function SignUpPage() {
           flexDirection="column"
           alignItems="center"
           justifyContent="center"
-          sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', padding: 4, borderRadius: 4, boxShadow: 3 }} // Centering and adding shadow
+          sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', padding: 4, borderRadius: 4, boxShadow: 3 }} 
         >
           <Box width="100%">
             <SignUp 
               routing="path" 
               path="/sign-up" 
-              afterSignUpUrl="/user-details" // Redirect to /user-details after successful sign-up
+              afterSignUpUrl="/user-details" 
             />
           </Box>
         </Box>

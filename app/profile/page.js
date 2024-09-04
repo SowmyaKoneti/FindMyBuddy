@@ -22,8 +22,8 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-import FriendsComponent from '../friends/FriendsComponent';  // Updated path
-import ChatsComponent from '../chats/ChatsComponent';        // Updated path
+import FriendsComponent from '../friends/FriendsComponent';  
+import ChatsComponent from '../chats/ChatsComponent';       
 
 export default function ProfilePage() {
   const { signOut } = useAuth();
@@ -34,13 +34,13 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [openSettings, setOpenSettings] = useState(false);
-  const [activeChat, setActiveChat] = useState(null); // State to handle active chat
+  const [activeChat, setActiveChat] = useState(null); 
 
   // useEffect to set chatUser once router query is available
   useEffect(() => {
     const email = searchParams.get('email') || '';
     const username = searchParams.get('username') || '';
-    console.log('Search params:', { email, username }); // Debugging: Check search parameters
+    console.log('Search params:', { email, username }); 
     if (email && username) {
       setChatUser({ email, username });
       console.log('Set chatUser with:', { email, username });
@@ -49,7 +49,7 @@ export default function ProfilePage() {
     }
   }, [searchParams]);
 
-  // Fetch user data when chatUser is set
+  // Fetch user data for chatUser 
   useEffect(() => {
     if (chatUser && chatUser.email && chatUser.username) {
       console.log("Fetching data for chatUser:", chatUser);
@@ -62,8 +62,8 @@ export default function ProfilePage() {
         })
         .then(data => {
           if (data) {
-            console.log("Fetched chat data:", data); // Log the fetched data
-            setActiveChat(data); // Ensure data exists before setting
+            console.log("Fetched chat data:", data); 
+            setActiveChat(data); 
           } else {
             console.log("No data found for chatUser");
           }
@@ -72,7 +72,6 @@ export default function ProfilePage() {
     }
   }, [chatUser]);
 
-  // Add console.log to check activeChat
   useEffect(() => {
     console.log("Current activeChat:", activeChat);
   }, [activeChat]);
@@ -90,30 +89,28 @@ export default function ProfilePage() {
     twitter: '',
   });
 
-  // Fetch user data
+  // Fetch current user data
   useEffect(() => {
     const fetchUserData = async () => {
       if (!clerkUser) return;
   
       try {
-        // Extract email and username from the clerkUser object
-        const email = clerkUser.emailAddresses[0]?.emailAddress; // Adjust if the structure is different
+        const email = clerkUser.emailAddresses[0]?.emailAddress; 
         const username = clerkUser.username;
   
         if (!email || !username) {
           throw new Error('Email or username is missing');
         }
-  
-        // Fetch user details using both email and username in the query params
+
         const response = await fetch(
           `/api/user-details?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`,
           { method: 'GET' }
         );
-  
+
         if (!response.ok) {
           throw new Error('Failed to fetch user details');
         }
-  
+
         const data = await response.json();
         setUserData(data);
         setFormData({
@@ -323,8 +320,8 @@ export default function ProfilePage() {
                 onChange={handleChange}
                 disabled={key === 'email' || key === 'username'}
                 sx={{
-                  '& .MuiInputLabel-root': { color: '#aaa' }, // Lighter color for label
-                  '& .MuiInputBase-input': { color: '#333' }, // Darker color for input value
+                  '& .MuiInputLabel-root': { color: '#aaa' }, 
+                  '& .MuiInputBase-input': { color: '#333' }, 
                 }}
               />
             ))}

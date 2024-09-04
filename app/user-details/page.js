@@ -13,11 +13,11 @@ export default function UserDetailsPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: '',
-    address: '', // New Address field
+    address: '', 
     location: '',
     bio: '',
     areaOfInterest: '',
-    lookingFor: '', // New optional Looking For field
+    lookingFor: '', 
     linkedIn: '',
     github: '',
     instagram: '',
@@ -33,7 +33,7 @@ export default function UserDetailsPage() {
     location: useRef(null),
     bio: useRef(null),
     areaOfInterest: useRef(null),
-    lookingFor: useRef(null), // Ref for Looking For field
+    lookingFor: useRef(null), 
     linkedIn: useRef(null),
     github: useRef(null),
     instagram: useRef(null),
@@ -77,7 +77,6 @@ export default function UserDetailsPage() {
       case 'twitter':
         if (value && !/^https:\/\/twitter\.com\/.*$/.test(value)) error = 'Enter a valid Twitter URL';
         break;
-      // No validation needed for 'lookingFor' as it's optional
       default:
         break;
     }

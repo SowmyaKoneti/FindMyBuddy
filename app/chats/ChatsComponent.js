@@ -4,11 +4,11 @@ import { ArrowDropUp, Close, PersonAdd } from '@mui/icons-material';
 import { useUser } from '@clerk/nextjs';
 
 const ChatsComponent = ({ friend, onClose }) => {
-  const { user: clerkUser } = useUser(); // Current user details
+  const { user: clerkUser } = useUser(); 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [minimized, setMinimized] = useState(false); // State to minimize the chat
-  const [isFriend, setIsFriend] = useState(false); // State to check if the friend is already added
+  const [minimized, setMinimized] = useState(false); 
+  const [isFriend, setIsFriend] = useState(false); 
 
   // Log the friend data to verify it is being passed correctly
   console.log('Received friend data:', friend);
@@ -22,9 +22,9 @@ const ChatsComponent = ({ friend, onClose }) => {
   };
 
   useEffect(() => {
-    if (!clerkUser || !friend) return; // Check that clerkUser and friend are defined
+    if (!clerkUser || !friend) return; 
 
-    // Check if the friend is already in the friends list from the cache
+    // Check if friend exists
     const checkIfFriend = async () => {
       try {
         // Fetch friends list for the current user
@@ -34,10 +34,8 @@ const ChatsComponent = ({ friend, onClose }) => {
         }
         const data = await response.json();
         
-        // Construct the friend's document ID using the friend's username and email
         const friendDocId = `${friend.username}_${friend.email.replace(/[@.]/g, '_')}`;
         
-        // Check if the friend's document ID exists in the user's friends list
         setIsFriend(data.some(f => f.id === friendDocId));
       } catch (error) {
         console.error('Failed to check friends list:', error);
@@ -47,11 +45,11 @@ const ChatsComponent = ({ friend, onClose }) => {
     checkIfFriend();
   }, [clerkUser, friend]);
 
+  // Add friend to friend list in backend database
   const handleAddFriend = async () => {
-    if (!clerkUser || !friend) return; // Ensure that clerkUser and friend are defined
+    if (!clerkUser || !friend) return; 
 
     try {
-      // Add friend to the user's friends list in the database using the simplified JSON structure
       const response = await fetch(`/api/friends-list`, {
         method: 'POST',
         headers: {

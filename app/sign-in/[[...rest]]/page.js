@@ -12,7 +12,7 @@ export default function SignInPage() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)', // Gradient background
+        background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)', 
         padding: 3,
       }}
     >
@@ -27,13 +27,13 @@ export default function SignInPage() {
           flexDirection="column"
           alignItems="center"
           justifyContent="center"
-          sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', padding: 4, borderRadius: 4, boxShadow: 3 }} // Centering and adding shadow
+          sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', padding: 4, borderRadius: 4, boxShadow: 3 }} 
         >
           <Box width="100%">
             <SignIn 
               routing="path"
-              path="/sign-in" // Correctly set path for the catch-all route
-              afterSignInUrl="/profile" // Redirect to /profile after successful sign-in
+              path="/sign-in" 
+              afterSignInUrl="/profile" 
             />
           </Box>
         </Box>

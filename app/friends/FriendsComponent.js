@@ -1,25 +1,24 @@
 // friends/FriendsComponent.js
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import { useUser } from '@clerk/nextjs'; // Import useUser from Clerk
+import { useUser } from '@clerk/nextjs'; 
 
 const FriendsComponent = ({ onChatClick }) => {
-  const { user: clerkUser } = useUser(); // Use useUser to get the current user
+  const { user: clerkUser } = useUser(); 
   const [friends, setFriends] = useState([]);
   const [error, setError] = useState(null);
 
-  // Fetch the friends list from the backend or database
+  // Fetch the friends list from the backend database
   const fetchFriends = async () => {
-    if (!clerkUser) return; // Ensure clerkUser is available
+    if (!clerkUser) return; 
     try {
-      // Fetch friends list using both email and username as query params
       const response = await fetch(`/api/friends-list?email=${encodeURIComponent(clerkUser.emailAddresses[0].emailAddress)}&username=${encodeURIComponent(clerkUser.username)}`);
       if (!response.ok) {
         throw new Error('Failed to fetch friends');
       }
       const data = await response.json();
-      setFriends(data || []); // Default to an empty array if no friends
-      setError(null); // Clear error if fetch is successful
+      setFriends(data || []); 
+      setError(null); 
     } catch (error) {
       console.error('Failed to fetch friends:', error);
       setError('Failed to fetch friends. Please try again later.');
@@ -27,22 +26,15 @@ const FriendsComponent = ({ onChatClick }) => {
   };
 
   useEffect(() => {
-    // Fetch friends when the component mounts
     fetchFriends();
-
-    // Set up polling every 10 seconds (10000 milliseconds)
     const intervalId = setInterval(fetchFriends, 10000);
-
-    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, [clerkUser]);
 
   // Logic to remove a friend from the list
   const handleRemoveFriend = async (friend) => {
-    if (!clerkUser || !friend) return; // Ensure clerkUser and friend are defined
-
+    if (!clerkUser || !friend) return; 
     try {
-      // Send request to remove friend
       const response = await fetch(`/api/friends-list`, {
         method: 'DELETE',
         headers: {
@@ -57,7 +49,6 @@ const FriendsComponent = ({ onChatClick }) => {
       });
 
       if (response.ok) {
-        // Update the state to remove friend from the UI
         setFriends((prevFriends) => prevFriends.filter((f) => f.username !== friend.username));
         alert(`${friend.fullName} has been removed from your friends list.`);
       } else {
