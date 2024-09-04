@@ -12,12 +12,13 @@ const FriendsComponent = ({ onChatClick }) => {
   const fetchFriends = async () => {
     if (!clerkUser) return; // Ensure clerkUser is available
     try {
-      const response = await fetch(`/api/friends-list?username=${encodeURIComponent(clerkUser.username)}`); // Use the correct endpoint with username
+      // Fetch friends list using both email and username as query params
+      const response = await fetch(`/api/friends-list?email=${encodeURIComponent(clerkUser.emailAddresses[0].emailAddress)}&username=${encodeURIComponent(clerkUser.username)}`);
       if (!response.ok) {
         throw new Error('Failed to fetch friends');
       }
       const data = await response.json();
-      setFriends(data.friends || []); // Default to an empty array if no friends
+      setFriends(data || []); // Default to an empty array if no friends
       setError(null); // Clear error if fetch is successful
     } catch (error) {
       console.error('Failed to fetch friends:', error);
@@ -31,13 +32,25 @@ const FriendsComponent = ({ onChatClick }) => {
 
   // Logic to remove a friend from the list
   const handleRemoveFriend = async (friend) => {
+    if (!clerkUser || !friend) return; // Ensure clerkUser and friend are defined
+
     try {
-      const response = await fetch(`/api/friends-list`, { // Adjust endpoint and method as needed
+      // Construct the current user's document ID and the friend's document ID
+      const currentUserDocId = `${clerkUser.username}_${clerkUser.emailAddresses[0].emailAddress.replace(/[@.]/g, '_')}`;
+      const friendDocId = `${friend.username}_${friend.email.replace(/[@.]/g, '_')}`;
+
+      // Send request to remove friend
+      const response = await fetch(`/api/friends-list`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ friendUsername: friend.username }), // Use username to identify friend
+        body: JSON.stringify({
+          currentUserEmail: clerkUser.emailAddresses[0].emailAddress,
+          currentUserUsername: clerkUser.username,
+          friendEmail: friend.email,
+          friendUsername: friend.username,
+        }),
       });
 
       if (response.ok) {
