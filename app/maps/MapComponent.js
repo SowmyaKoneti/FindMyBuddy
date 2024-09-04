@@ -189,7 +189,8 @@ const MapComponent = () => {
                                     style={{ marginTop: '5px' }}
                                     onClick={(e) => {
                                         e.stopPropagation(); // Prevent click event from triggering on parent Box
-                                        router.push(`../profile?email=${encodeURIComponent(user.email)}&username=${encodeURIComponent(user.username)}`);
+                                        console.log("from main page:" ,selectedUser.email,selectedUser.username )
+                                        router.push(`../profile?email=${encodeURIComponent(selectedUser.email)}&username=${encodeURIComponent(selectedUser.username)}`);
                                     }}
                                     >
                                     Chat
