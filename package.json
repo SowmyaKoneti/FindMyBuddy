@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "_comment": "start: next start",
-    "start": "node server.js",
+    "start-server": "node server.js",
     "lint": "next lint"
   },
   "dependencies": {

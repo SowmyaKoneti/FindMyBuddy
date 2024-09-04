@@ -1,6 +1,6 @@
 // utils/socket.js
-import { io } from 'socket.io-client';
+import  io from 'socket.io-client';
 
-const socket = io('http://localhost:3000'); // Point to your server
+const socket = io('http://localhost:3000'); 
 
 export default socket;

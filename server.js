@@ -1,41 +1,46 @@
-// server.js
-const { createServer } = require('http');
-const { parse } = require('url');
-const next = require('next');
-const socketIo = require('socket.io');
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 
-const dev = process.env.NODE_ENV !== 'production';
-const app = next({ dev });
-const handle = app.getRequestHandler();
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*', // Allow your frontend URL here
+    methods: ['GET', 'POST']
+  }
+});
 
-app.prepare().then(() => {
-  const server = createServer((req, res) => {
-    const parsedUrl = parse(req.url, true);
-    handle(req, res, parsedUrl);
+io.on('connection', (socket) => {
+  console.log('New client connected', socket.id);
+
+  socket.on('sendMessage', (data) => {
+    // Broadcast message to the chat room
+    io.to(data.chatId).emit('receiveMessage', data);
   });
 
-  // Integrate Socket.IO
-  const io = socketIo(server);
-
-  io.on('connection', (socket) => {
-    console.log('New client connected');
-
-    socket.on('joinRoom', ({ chatId }) => {
-      socket.join(chatId);
-      console.log(`User joined room: ${chatId}`);
-    });
-
-    socket.on('sendMessage', ({ chatId, from, message }) => {
-      io.to(chatId).emit('receiveMessage', { from, message });
-    });
-
-    socket.on('disconnect', () => {
-      console.log('Client disconnected');
-    });
+  socket.on('joinRoom', ({ chatId }) => {
+    socket.join(chatId);
+    console.log(`Socket ${socket.id} joined room ${chatId}`);
   });
 
-  server.listen(3000, (err) => {
-    if (err) throw err;
-    console.log('> Ready on http://localhost:3000');
+  socket.on('leaveRoom', ({ chatId }) => {
+    socket.leave(chatId);
+    console.log(`Socket ${socket.id} left room ${chatId}`);
   });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected', socket.id);
+  });
+});
+
+// Example route
+app.get('/', (req, res) => {
+  res.send('Socket.IO Server is running');
+});
+
+// Set the server to listen on a specific port
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });

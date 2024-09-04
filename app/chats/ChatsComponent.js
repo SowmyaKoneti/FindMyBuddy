@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, TextField, Button, IconButton } from '@mui/material';
 import { ArrowDropUp, Close, PersonAdd } from '@mui/icons-material';
 import { useUser } from '@clerk/nextjs';
@@ -10,7 +10,8 @@ const ChatsComponent = ({ friend, onClose }) => {
   const [input, setInput] = useState('');
   const [minimized, setMinimized] = useState(false);
   const [isFriend, setIsFriend] = useState(false);
-  
+  const chatBoxRef = useRef(null); // Reference to the chat box for scrolling
+
   // Construct chat ID based on usernames and emails
   const chatId = `${[clerkUser.username, friend.username].sort().join('_')}_${[clerkUser.emailAddresses[0].emailAddress, friend.email].sort().join('_')}`;
 
@@ -26,6 +27,7 @@ const ChatsComponent = ({ friend, onClose }) => {
         }
         const data = await response.json();
         setMessages(data); // Set messages in the state
+        scrollToBottom(); // Scroll to the bottom on initial load
       } catch (error) {
         console.error('Failed to fetch chat messages:', error);
       }
@@ -39,6 +41,7 @@ const ChatsComponent = ({ friend, onClose }) => {
     // Listen for incoming messages from Socket.IO
     socket.on('receiveMessage', ({ from, message, timestamp }) => {
       setMessages((prevMessages) => [...prevMessages, { sender: from, text: message, timestamp }]);
+      scrollToBottom(); // Scroll to the bottom when a new message is received
     });
 
     // Cleanup function to leave the room and remove listeners on component unmount
@@ -77,8 +80,9 @@ const ChatsComponent = ({ friend, onClose }) => {
       }).catch((err) => console.error('Failed to store message:', err));
 
       // Update state with the new message locally
-      setMessages((prevMessages) => [...prevMessages, { sender: 'Me', text: message, timestamp }]);
+      setMessages((prevMessages) => [...prevMessages, { sender: clerkUser.username, text: message, timestamp }]);
       setInput(''); // Clear the input field
+      scrollToBottom(); // Scroll to the bottom after sending a message
     }
   };
 
@@ -127,6 +131,13 @@ const ChatsComponent = ({ friend, onClose }) => {
       }
     } catch (error) {
       console.error('Error adding friend:', error);
+    }
+  };
+
+  // Scroll to the bottom of the chat box
+  const scrollToBottom = () => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   };
 
@@ -200,19 +211,39 @@ const ChatsComponent = ({ friend, onClose }) => {
         </Box>
       </Box>
       {!minimized && (
-        <Box sx={{ flex: 1, padding: '0.5rem', overflowY: 'auto' }}>
+        <Box
+          ref={chatBoxRef}
+          sx={{
+            flex: 1,
+            padding: '0.5rem',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           {messages.map((message, index) => (
-            <Typography
+            <Box
               key={index}
               sx={{
+                display: 'flex',
+                justifyContent: message.sender === clerkUser.username ? 'flex-end' : 'flex-start',
                 marginBottom: '0.5rem',
-                textAlign: message.sender === 'Me' ? 'right' : 'left',
-                color: message.sender === 'Me' ? '#0077b5' : '#333',
+                padding: '0.5rem',
               }}
             >
-              <strong>{message.sender === 'Me' ? 'You' : message.sender}: </strong>
-              {message.text}
-            </Typography>
+              <Typography
+                sx={{
+                  maxWidth: '70%',
+                  backgroundColor: message.sender === clerkUser.username ? '#0077b5' : '#f0f0f0',
+                  color: message.sender === clerkUser.username ? '#fff' : '#333',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  wordWrap: 'break-word',
+                }}
+              >
+                {message.text}
+              </Typography>
+            </Box>
           ))}
         </Box>
       )}
