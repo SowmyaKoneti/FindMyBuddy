@@ -221,30 +221,36 @@ const ChatsComponent = ({ friend, onClose }) => {
             flexDirection: 'column',
           }}
         >
-          {messages.map((message, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: 'flex',
-                justifyContent: message.sender === clerkUser.username ? 'flex-end' : 'flex-start',
-                marginBottom: '0.5rem',
-                padding: '0.5rem',
-              }}
-            >
-              <Typography
+          {Array.isArray(messages) ? (
+            messages.map((message, index) => (
+              <Box
+                key={index}
                 sx={{
-                  maxWidth: '70%',
-                  backgroundColor: message.sender === clerkUser.username ? '#0077b5' : '#f0f0f0',
-                  color: message.sender === clerkUser.username ? '#fff' : '#333',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '8px',
-                  wordWrap: 'break-word',
+                  display: 'flex',
+                  justifyContent: message.sender === clerkUser.username ? 'flex-end' : 'flex-start',
+                  marginBottom: '0.5rem',
+                  padding: '0.5rem',
                 }}
               >
-                {message.text}
-              </Typography>
-            </Box>
-          ))}
+                <Typography
+                  sx={{
+                    maxWidth: '70%',
+                    backgroundColor: message.sender === clerkUser.username ? '#0077b5' : '#f0f0f0',
+                    color: message.sender === clerkUser.username ? '#fff' : '#333',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '8px',
+                    wordWrap: 'break-word',
+                  }}
+                >
+                  {message.text}
+                </Typography>
+              </Box>
+            ))
+          ) : (
+            <Typography sx={{ textAlign: 'center', color: '#666' }}>
+              No messages available.
+            </Typography>
+          )}
         </Box>
       )}
       {!minimized && (
