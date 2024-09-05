@@ -193,7 +193,9 @@ export default function Home() {
           <Image
             src="/images/club3-custom-logo.svg"  // Replace with the actual path to your logo
             alt="Logo"
-            style={{ width: '150px', marginBottom: '1rem' }}  // Adjust size and spacing as needed
+            width={150}
+            height={150}
+            style={{ marginBottom: '1rem' }}  // Adjust size and spacing as needed
           />
           <Typography
             variant="h2"

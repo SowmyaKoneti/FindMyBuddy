@@ -179,7 +179,9 @@ export default function UserDetailsPage() {
           <Image
             src="../images/club3-custom-logo.svg"  
             alt="Logo"
-            style={{ width: '32px', marginRight: '8px' }} 
+            width= {32} 
+            height={32}
+            style={{ marginRight: '8px' }} 
           />
           <Typography
             variant="h5"
