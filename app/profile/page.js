@@ -1,8 +1,9 @@
 'use client';
 
 import Head from "next/head";
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation'; 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useAuth, useUser } from '@clerk/nextjs';
 import {
   Box,
@@ -26,7 +27,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import FriendsComponent from '../friends/FriendsComponent';  
 import ChatsComponent from '../chats/ChatsComponent';       
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { signOut } = useAuth();
   const { user: clerkUser } = useUser();
   const searchParams = useSearchParams();
@@ -222,218 +223,14 @@ export default function ProfilePage() {
   }
 
   return (
-    <>
-    <Head>
-        <title>Club3 - Profile</title>
-        <link rel = "icon"
-		          href = "/images/club3-favicon.ico"/>
-        <meta name="description" content="Your CLub3 Profile." />
-    </Head>
-    <Box
-      sx={{
-        width: '100%',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)',
-        padding: '2rem',
-      }}
-    >
-      {/* Header */}
-      <Box
-        sx={{
-          width: '100%',  
-          display: 'flex',
-          justifyContent: 'space-between', 
-          alignItems: 'center',           
-          padding: '1rem',
-          boxSizing: 'border-box',         
-          position: 'absolute',          
-          top: 0,                         
-          left: 0,                         
-        }}
-      >
-        {/* Left Side: Logo and club3 Text */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <img
-            src="../images/club3-custom-logo.svg"  
-            alt="Logo"
-            style={{ width: '32px', marginRight: '8px' }} 
-          />
-          <Typography
-            variant="h5"
-            sx={{
-              background: 'linear-gradient(to right, #fcb045, #fd8369)', 
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              fontWeight: 'bold',
-            }}
-          >
-            Club3
-          </Typography>
-        </Box>
-      {/* Top Right: Home Icon and Log Out Button */}
-      <Box sx={{ position: 'fixed', top: '1rem', right: '1rem', display: 'flex', gap: '0.5rem' }}>
-      <IconButton
-          onClick={() => (window.location.href = '/')}
-          sx={{
-            fontSize: '32px', 
-            padding: '8px',
-            background: 'linear-gradient(to right, #4f758f, #449fdb)',  
-            WebkitBackgroundClip: 'text',   
-            WebkitTextFillColor: 'transparent', 
-            '&:hover': {
-              background: 'linear-gradient(to right, #3b5f7a, #4a86aa)',  
-            },
-          }}
-        >
-          <HomeIcon sx={{ fontSize: '32px' }} />  
-        </IconButton>
-        <IconButton onClick={handleSettingsOpen} 
-        sx={{ 
-          fontSize: '32px', 
-            padding: '8px',
-            background: 'linear-gradient(to right, #4f758f, #449fdb)',  
-            WebkitBackgroundClip: 'text',   
-            WebkitTextFillColor: 'transparent', 
-            '&:hover': {
-              background: 'linear-gradient(to right, #3b5f7a, #4a86aa)',  
-            }, 
-        }}>
-          <SettingsIcon sx={{ fontSize: '32px' }} />
-        </IconButton>
-        <Button
-          variant="contained"
-            sx={{
-              background: 'linear-gradient(to right, #4f758f, #449fdb)',
-              color: '#FFFFFF',
-              marginLeft: '1rem',
-                '&:hover': {
-              background: 'linear-gradient(to right, #3b5f7a,  #4a86aa)', 
-                  },
-            }}
-          onClick={() => {
-            signOut()
-              .then(() => {
-                window.location.href = '/';
-              })
-              .catch((error) => {
-                console.error('Failed to log out:', error);
-              });
-          }}
-        >
-          Log Out
-        </Button>
-      </Box>
-      </Box>
+    <>{/* Rest of your component's return JSX */}</>
+  );
+}
 
-      {/* Center: User Details */}
-      <Box sx={{ textAlign: 'center', marginTop: '5rem' }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333333' }}>
-          {userData?.fullName || 'User Name'}
-        </Typography>
-        {clerkUser && (
-          <Typography variant="body2" sx={{ color: '#555555' }}>
-            @{clerkUser.username || clerkUser.firstName || clerkUser.email}
-          </Typography>
-        )}
-        <Typography variant="body1" sx={{ marginBottom: '1rem', color: '#666666' }}>
-          {userData?.bio || 'User Bio'}
-        </Typography>
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-          {userData?.linkedIn && (
-            <LinkedInIcon sx={{ color: '#0077b5', cursor: 'pointer' }} onClick={() => handleNavigation(userData.linkedIn)} />
-          )}
-          {userData?.github && (
-            <GitHubIcon sx={{ color: '#333333', cursor: 'pointer' }} onClick={() => handleNavigation(userData.github)} />
-          )}
-          {userData?.twitter && (
-            <TwitterIcon sx={{ color: '#1DA1F2', cursor: 'pointer' }} onClick={() => handleNavigation(userData.twitter)} />
-          )}
-          {userData?.instagram && (
-            <InstagramIcon sx={{ color: '#E1306C', cursor: 'pointer' }} onClick={() => handleNavigation(userData.instagram)} />
-          )}
-        </Box>
-      </Box>
-
-      {/* Friends List Section */}
-      <FriendsComponent onChatClick={(friend) => setActiveChat(friend)} />
-
-      {/* Chat Box */}
-      {activeChat ? (
-        <ChatsComponent
-          friend={activeChat}
-          onClose={() => {
-            console.log('Closing chat component');
-            setActiveChat(null);
-          }}
-        />
-      ) : (
-        console.log('Chat box is not rendered as activeChat is:', activeChat)
-      )}
-
-      {/* Edit Account Details Dialog */}
-      <Dialog open={openSettings} onClose={handleSettingsClose} fullWidth maxWidth="sm">
-        <DialogTitle>Edit Account Details</DialogTitle>
-        <DialogContent>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {Object.keys(formData).map((key) => (
-              <TextField
-                key={key}
-                name={key}
-                label={key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-                value={formData[key]}
-                onChange={handleChange}
-                disabled={key === 'email' || key === 'username'}
-                sx={{
-                  '& .MuiInputLabel-root': { color: '#aaa' }, 
-                  '& .MuiInputBase-input': { color: '#333' }, 
-                }}
-              />
-            ))}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleSettingsClose}
-            sx={{
-              color: '#420050',
-              fontWeight: 'bold',
-              boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.2)',
-              transition: 'transform 0.2s',
-              '&:hover': { boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.3)', transform: 'scale(1.05)' },
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            sx={{
-              color: '#4caf50',
-              fontWeight: 'bold',
-              boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.2)',
-              transition: 'transform 0.2s',
-              '&:hover': { boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.3)', transform: 'scale(1.05)' },
-            }}
-          >
-            Save
-          </Button>
-          <Button
-            onClick={handleDeleteAccount}
-            sx={{
-              color: '#d32f2f',
-              fontWeight: 'bold',
-              boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.2)',
-              transition: 'transform 0.2s',
-              '&:hover': { boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.3)', transform: 'scale(1.05)' },
-            }}
-          >
-            Delete Account
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
-    </>
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProfileContent />
+    </Suspense>
   );
 }

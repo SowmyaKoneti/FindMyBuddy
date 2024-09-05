@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import { Box, Button, Typography } from '@mui/material';
@@ -85,7 +85,7 @@ const MapComponent = () => {
     }, []);
 
     // Include nearby users based on distance
-    const updateVisibleUsers = () => {
+    const updateVisibleUsers = useCallback(()  => {
         if (center) {
             const filteredUsers = users.filter((user) => {
                 if (user.lat && user.lng) {
@@ -99,11 +99,11 @@ const MapComponent = () => {
             });
             setVisibleUsers(filteredUsers);
         }
-    };
+    }, [center, users]); 
 
     useEffect(() => {
         updateVisibleUsers();
-    }, [center, users]);
+    }, [center, users, updateVisibleUsers]);
 
     const onMapLoad = (map) => {
         mapRef.current = map;

@@ -1,6 +1,7 @@
 'use client'; // Mark this as a Client Component
 
 import React, { useState, useCallback } from 'react';
+import Image from 'next/image';
 import Head from "next/head";
 import { SignedIn, SignedOut, useClerk, useUser } from "@clerk/nextjs";
 import MapComponent from "./maps/MapComponent";
@@ -189,7 +190,7 @@ export default function Home() {
 
         {/* Main Content */}
         <Container sx={{ textAlign: 'center', padding: '2rem' }}>
-          <img
+          <Image
             src="/images/club3-custom-logo.svg"  // Replace with the actual path to your logo
             alt="Logo"
             style={{ width: '150px', marginBottom: '1rem' }}  // Adjust size and spacing as needed

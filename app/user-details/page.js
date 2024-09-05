@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import Image from 'next/image';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import HomeIcon from '@mui/icons-material/Home';
@@ -175,7 +176,7 @@ export default function UserDetailsPage() {
       >
         {/* Left Side: Logo and club3 Text */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <img
+          <Image
             src="../images/club3-custom-logo.svg"  
             alt="Logo"
             style={{ width: '32px', marginRight: '8px' }} 

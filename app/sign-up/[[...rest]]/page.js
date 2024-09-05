@@ -1,6 +1,7 @@
 // sign-up/[[...rest]]/page.js
 'use client';
 import { SignUp } from '@clerk/nextjs';
+import Image from 'next/image';
 import { Box, Container, Typography, IconButton } from '@mui/material';
 import Head from 'next/head';
 import HomeIcon from '@mui/icons-material/Home';
@@ -12,7 +13,6 @@ export default function SignUpPage() {
         <title>Club3 - Sign Up</title>
         <link rel="icon" href="../images/club3-favicon.ico" />
         <meta name="description" content="Sign up for your Club3 account" />
-        <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Dancing+Script&display=swap" rel="stylesheet" />
     </Head>
     <Box
       sx={{
@@ -43,7 +43,7 @@ export default function SignUpPage() {
       >
         {/* Left Side: Logo and club3 Text */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <img
+          <Image
             src="../images/club3-custom-logo.svg"  
             alt="Logo"
             style={{ width: '32px', marginRight: '8px' }} 

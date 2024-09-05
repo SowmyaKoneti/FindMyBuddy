@@ -11,24 +11,24 @@ const FriendsComponent = ({ onChatClick }) => {
   const [error, setError] = useState(null);
 
   // Fetch the friends list from the backend database
-  const fetchFriends = async () => {
-    if (!clerkUser) return; 
-    try {
-      const response = await fetch(`/api/friends-list?email=${encodeURIComponent(clerkUser.emailAddresses[0].emailAddress)}&username=${encodeURIComponent(clerkUser.username)}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch friends');
-      }
-      const data = await response.json();
-      setFriends(data || []); 
-      setError(null); 
-    } catch (error) {
-      console.error('Failed to fetch friends:', error);
-      setError('Failed to fetch friends. Please try again later.');
-    }
-  };
+  
 
   useEffect(() => {
-    fetchFriends();
+    const fetchFriends = async () => {
+      if (!clerkUser) return; 
+      try {
+        const response = await fetch(`/api/friends-list?email=${encodeURIComponent(clerkUser.emailAddresses[0].emailAddress)}&username=${encodeURIComponent(clerkUser.username)}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch friends');
+        }
+        const data = await response.json();
+        setFriends(data || []); 
+        setError(null); 
+      } catch (error) {
+        console.error('Failed to fetch friends:', error);
+        setError('Failed to fetch friends. Please try again later.');
+      }
+    };
     const intervalId = setInterval(fetchFriends, 10000);
     return () => clearInterval(intervalId);
   }, [clerkUser]);
