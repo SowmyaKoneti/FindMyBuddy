@@ -1,27 +1,87 @@
 // sign-up/[[...rest]]/page.js
 'use client';
 import { SignUp } from '@clerk/nextjs';
-import { Box, Container } from '@mui/material';
+import { Box, Container, Typography, IconButton } from '@mui/material';
 import Head from 'next/head';
+import HomeIcon from '@mui/icons-material/Home';
 
 export default function SignUpPage() {
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: 'linear-gradient(to right, #E0F7FA, #FFFFFF)', 
-        padding: 3,
-      }}
-    >
-      <Head>
-        <title>Sign Up - Club3</title>
+    <>
+    <Head>
+        <title>Club3 - Sign Up</title>
+        <link rel="icon" href="../images/club3-favicon.ico" />
         <meta name="description" content="Sign up for your Club3 account" />
         <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Dancing+Script&display=swap" rel="stylesheet" />
-      </Head>
-      <Container maxWidth="sm" sx={{ display: 'flex', justifyContent: 'center' }}>
+    </Head>
+    <Box
+      sx={{
+        width: '100%',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'center',  // Centers the main content only
+        background: 'linear-gradient(to right, #E0F7FA, #FFFFFF, #E0F7FA)',  
+      }}
+    >
+      
+
+      {/* Header */}
+      <Box
+        sx={{
+          width: '100%',  
+          display: 'flex',
+          justifyContent: 'space-between', 
+          alignItems: 'center',           
+          padding: '1rem',
+          boxSizing: 'border-box',         
+          position: 'absolute',          
+          top: 0,                         
+          left: 0,                         
+        }}
+      >
+        {/* Left Side: Logo and club3 Text */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="../images/club3-custom-logo.svg"  
+            alt="Logo"
+            style={{ width: '32px', marginRight: '8px' }} 
+          />
+          <Typography
+            variant="h5"
+            sx={{
+              background: 'linear-gradient(to right, #fcb045, #fd8369)', 
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 'bold',
+            }}
+          >
+            Club3
+          </Typography>
+        </Box>
+
+        {/* Right Side: Home Icon */}
+        <IconButton
+          onClick={() => (window.location.href = '/')}
+          sx={{
+            fontSize: '32px', 
+            padding: '8px',
+            background: 'linear-gradient(to right, #4f758f, #449fdb)',  
+            WebkitBackgroundClip: 'text',   
+            WebkitTextFillColor: 'transparent', 
+            '&:hover': {
+              background: 'linear-gradient(to right, #3b5f7a, #4a86aa)',  
+            },
+          }}
+        >
+          <HomeIcon sx={{ fontSize: '32px' }} />  
+        </IconButton>
+      </Box>
+
+
+      {/* Main Content */}
+      <Container maxWidth="sm" sx={{ display: 'flex', justifyContent: 'center', marginTop: '80px' }}> 
         <Box
           display="flex"
           flexDirection="column"
@@ -39,5 +99,6 @@ export default function SignUpPage() {
         </Box>
       </Container>
     </Box>
+    </>
   );
 }

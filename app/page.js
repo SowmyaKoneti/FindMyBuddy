@@ -80,36 +80,12 @@ export default function Home() {
   };
 
   // Use Gravatar or a similar service to get a circular avatar if no profile image is available
-  const avatarUrl = user?.profileImageUrl || `https://robohash.org/${user?.username || 'default'}.png?size=50x50&set=set4`; // Use set4 for circular avatars if supported
-  
-  // const llm_response = async (input) => {
-  //   try {
-  //     const response = await fetch('api/llm-data', { 
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ "input": input }),
-  //     })
-  //       .then(function(response){
-  //         console.log("inside axios post response", response)
-  //         if (response.ok) {
-  //           console.log("ok response from llm",response.json())
-  //         } else {
-            
-  //           console.log("inside axios post after NOT ok",response);
-  //         }
-  //       });
-  //   } catch (error) {
-  //     console.error('Error submitting user details:', error);
-  //   }
-  // }
-  // llm_response("sports");
+  const avatarUrl = user?.profileImageUrl || `https://robohash.org/${user?.username || 'default'}.png?size=50x50&set=set4`; 
 
   return (
     <>
       <Head>
-        <title>club3 - Home</title>
+        <title>Club3 - Home</title>
         <link rel = "icon"
 		          href = "/images/club3-favicon.ico"/>
         <meta name="description" content="Your community, Your connections." />
@@ -139,7 +115,7 @@ export default function Home() {
               fontWeight: 'bold',
             }}
           >
-            club3
+            Club3
           </Typography>
           <Box>
             <SignedOut>

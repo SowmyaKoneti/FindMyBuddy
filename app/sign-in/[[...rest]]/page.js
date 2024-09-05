@@ -7,6 +7,11 @@ import HomeIcon from '@mui/icons-material/Home';
 
 export default function SignInPage() {
   return (
+    <>
+    <title>Club3 - Sign In</title>
+        <link rel="icon" href="../images/club3-favicon.ico" />
+        <meta name="description" content="Sign Into your Club3 account" />
+        <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Dancing+Script&display=swap" rel="stylesheet" />
     <Box
       sx={{
         width: '100%',
@@ -18,13 +23,6 @@ export default function SignInPage() {
         background: 'linear-gradient(to right, #E0F7FA, #FFFFFF, #E0F7FA)',  
       }}
     >
-      <Head>
-        <title>Club3 - Sign In</title>
-        <link rel="icon" href="../images/club3-favicon.ico" />
-        <meta name="description" content="Sign in to your Club3 account" />
-        <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Dancing+Script&display=swap" rel="stylesheet" />
-      </Head>
-
       {/* Header */}
       <Box
         sx={{
@@ -96,5 +94,6 @@ export default function SignInPage() {
         </Box>
       </Container>
     </Box>
+    </>
   );
 }

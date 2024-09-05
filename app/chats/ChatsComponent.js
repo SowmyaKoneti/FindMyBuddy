@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, TextField, Button, IconButton } from '@mui/material';
 import { ArrowDropUp, Close, PersonAdd } from '@mui/icons-material';
+import SendIcon from '@mui/icons-material/Send'; 
 import { useUser } from '@clerk/nextjs';
 import socket from '../utils/socket'; // Import the socket instance for real-time messaging
 
@@ -188,14 +189,15 @@ const ChatsComponent = ({ friend, onClose }) => {
       <Box
         sx={{
           padding: '0.5rem',
-          backgroundColor: '#0077b5',
+          // background: 'linear-gradient(to right, #4f758f, #449fdb)', 
+          backgroundColor: '#4f758f',
           color: '#fff',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}
       >
-        <Typography variant="subtitle1">{friend.fullName}</Typography>
+        <Typography variant="subtitle1" fontWeight="bold">{friend.fullName}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {!isFriend && (
             <IconButton onClick={handleAddFriend} sx={{ color: '#fff' }}>
@@ -264,8 +266,24 @@ const ChatsComponent = ({ friend, onClose }) => {
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder="Type a message..."
           />
-          <Button onClick={handleSendMessage} variant="contained" sx={{ marginLeft: '0.5rem' }}>
-            Send
+          <Button
+            onClick={handleSendMessage}
+            variant="contained"
+            sx={{
+              marginLeft: '0.5rem',
+              backgroundColor: '#FFFFFF',  // White background to keep it consistent with your UI
+              color: '#4f758f',  // Blue color from your theme for the icon
+              boxShadow: 'none',  // Removes default shadow for a cleaner look
+              border: '1px solid #4f758f',  // Adds a border to match the icon color
+              '&:hover': {
+                backgroundColor: '#F0F4FF',  // Light blue hover effect to maintain a subtle UI consistency
+                borderColor: '#449fdb',  // Adjust border color on hover
+              },
+              padding: '8px',  // Adjust padding for the icon button appearance
+              minWidth: 'auto',  // Remove the default button width
+            }}
+          >
+            <SendIcon sx={{ fontSize: '20px' }} />  {/* Set the size of the icon */}
           </Button>
         </Box>
       )}

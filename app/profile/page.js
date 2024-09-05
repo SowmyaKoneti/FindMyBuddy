@@ -1,5 +1,6 @@
 'use client';
 
+import Head from "next/head";
 import { useSearchParams } from 'next/navigation'; 
 import React, { useEffect, useState } from 'react';
 import { useAuth, useUser } from '@clerk/nextjs';
@@ -221,6 +222,13 @@ export default function ProfilePage() {
   }
 
   return (
+    <>
+    <Head>
+        <title>Club3 - Profile</title>
+        <link rel = "icon"
+		          href = "/images/club3-favicon.ico"/>
+        <meta name="description" content="Your CLub3 Profile." />
+    </Head>
     <Box
       sx={{
         width: '100%',
@@ -232,21 +240,79 @@ export default function ProfilePage() {
         padding: '2rem',
       }}
     >
+      {/* Header */}
+      <Box
+        sx={{
+          width: '100%',  
+          display: 'flex',
+          justifyContent: 'space-between', 
+          alignItems: 'center',           
+          padding: '1rem',
+          boxSizing: 'border-box',         
+          position: 'absolute',          
+          top: 0,                         
+          left: 0,                         
+        }}
+      >
+        {/* Left Side: Logo and club3 Text */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="../images/club3-custom-logo.svg"  
+            alt="Logo"
+            style={{ width: '32px', marginRight: '8px' }} 
+          />
+          <Typography
+            variant="h5"
+            sx={{
+              background: 'linear-gradient(to right, #fcb045, #fd8369)', 
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 'bold',
+            }}
+          >
+            Club3
+          </Typography>
+        </Box>
       {/* Top Right: Home Icon and Log Out Button */}
       <Box sx={{ position: 'fixed', top: '1rem', right: '1rem', display: 'flex', gap: '0.5rem' }}>
-        <IconButton onClick={() => (window.location.href = '/')} sx={{ color: '#555' }}>
-          <HomeIcon />
+      <IconButton
+          onClick={() => (window.location.href = '/')}
+          sx={{
+            fontSize: '32px', 
+            padding: '8px',
+            background: 'linear-gradient(to right, #4f758f, #449fdb)',  
+            WebkitBackgroundClip: 'text',   
+            WebkitTextFillColor: 'transparent', 
+            '&:hover': {
+              background: 'linear-gradient(to right, #3b5f7a, #4a86aa)',  
+            },
+          }}
+        >
+          <HomeIcon sx={{ fontSize: '32px' }} />  
         </IconButton>
-        <IconButton onClick={handleSettingsOpen} sx={{ color: '#555' }}>
-          <SettingsIcon />
+        <IconButton onClick={handleSettingsOpen} 
+        sx={{ 
+          fontSize: '32px', 
+            padding: '8px',
+            background: 'linear-gradient(to right, #4f758f, #449fdb)',  
+            WebkitBackgroundClip: 'text',   
+            WebkitTextFillColor: 'transparent', 
+            '&:hover': {
+              background: 'linear-gradient(to right, #3b5f7a, #4a86aa)',  
+            }, 
+        }}>
+          <SettingsIcon sx={{ fontSize: '32px' }} />
         </IconButton>
         <Button
           variant="contained"
-          sx={{
-            background: 'linear-gradient(to right, #4f758f, #449fdb)',
-            color: '#ffffff',
-            '&:hover': { background: 'linear-gradient(to right, #3b5f7a, #307fcc)' },
-          }}
+            sx={{
+              background: 'linear-gradient(to right, #4f758f, #449fdb)',
+              color: '#FFFFFF',
+              marginLeft: '1rem',
+                '&:hover': {
+              background: 'linear-gradient(to right, #3b5f7a,  #4a86aa)', 
+                  },
+            }}
           onClick={() => {
             signOut()
               .then(() => {
@@ -259,6 +325,7 @@ export default function ProfilePage() {
         >
           Log Out
         </Button>
+      </Box>
       </Box>
 
       {/* Center: User Details */}
@@ -367,5 +434,6 @@ export default function ProfilePage() {
         </DialogActions>
       </Dialog>
     </Box>
+    </>
   );
 }

@@ -4,7 +4,8 @@
 import React, { useState, useRef } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { Box, TextField, Button, Container, Typography, InputAdornment, Alert } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
+import { Box, TextField, Button, Container, Typography, InputAdornment, Alert, IconButton } from '@mui/material';
 import Head from 'next/head';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
@@ -114,8 +115,8 @@ export default function UserDetailsPage() {
         username: user?.username || 'default_username',
         email: user?.emailAddresses[0]?.emailAddress || 'default_email@example.com',
       };
-  
-      try {
+
+          try {
         const response = await fetch('/api/user-details', { 
           method: 'POST',
           headers: {
@@ -136,9 +137,16 @@ export default function UserDetailsPage() {
         console.error('Error submitting user details:', error);
       }
     }
+
   };
 
   return (
+    <>
+    <Head>
+        <title>Club3 - User Details</title>
+        <link rel="icon" href="../images/club3-favicon.ico" />
+        <meta name="description" content="Complete your profile details on Club3" />
+    </Head>
     <Box
       sx={{
         minHeight: '100vh',
@@ -149,10 +157,61 @@ export default function UserDetailsPage() {
         padding: 3,
       }}
     >
-      <Head>
-        <title>User Details - Club3</title>
-        <meta name="description" content="Complete your profile details on Club3" />
-      </Head>
+      
+
+      {/* Header */}
+      <Box
+        sx={{
+          width: '100%',  
+          display: 'flex',
+          justifyContent: 'space-between', 
+          alignItems: 'center',           
+          padding: '1rem',
+          boxSizing: 'border-box',         
+          position: 'absolute',          
+          top: 0,                         
+          left: 0,                         
+        }}
+      >
+        {/* Left Side: Logo and club3 Text */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="../images/club3-custom-logo.svg"  
+            alt="Logo"
+            style={{ width: '32px', marginRight: '8px' }} 
+          />
+          <Typography
+            variant="h5"
+            sx={{
+              background: 'linear-gradient(to right, #fcb045, #fd8369)', 
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 'bold',
+            }}
+          >
+            Club3
+          </Typography>
+        </Box>
+
+        {/* Right Side: Home Icon */}
+        <IconButton
+          onClick={() => (window.location.href = '/')}
+          sx={{
+            fontSize: '32px', 
+            padding: '8px',
+            background: 'linear-gradient(to right, #4f758f, #449fdb)',  
+            WebkitBackgroundClip: 'text',   
+            WebkitTextFillColor: 'transparent', 
+            '&:hover': {
+              background: 'linear-gradient(to right, #3b5f7a, #4a86aa)',  
+            },
+          }}
+        >
+          <HomeIcon sx={{ fontSize: '32px' }} />  
+        </IconButton>
+      </Box>
+
+
       <Container maxWidth="sm">
         <Box
           component="form"
@@ -209,7 +268,7 @@ export default function UserDetailsPage() {
               background: 'linear-gradient(to right, #4f758f, #449fdb)',
               color: '#ffffff',
               '&:hover': {
-                background: 'linear-gradient(to right, #3b5f7a, #307fcc)',
+                background: 'linear-gradient(to right, #3b5f7a, #4a86aa)',
               },
               mt: 2,
             }}
@@ -219,5 +278,6 @@ export default function UserDetailsPage() {
         </Box>
       </Container>
     </Box>
+    </>
   );
 }

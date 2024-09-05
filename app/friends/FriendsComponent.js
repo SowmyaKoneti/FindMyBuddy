@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { useUser } from '@clerk/nextjs'; 
+import ChatIcon from '@mui/icons-material/Chat';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const FriendsComponent = ({ onChatClick }) => {
   const { user: clerkUser } = useUser(); 
@@ -107,17 +109,40 @@ const FriendsComponent = ({ onChatClick }) => {
                 <Button
                   variant="outlined"
                   size="small"
+                  sx={{
+                    backgroundColor: '#FFFFFF', 
+                    color: '#4f758f',  
+                    minWidthwidth: 'auto',     
+                    padding: '8px', 
+                    boxShadow: 'none',
+                    // border: '1px solid #4f758f',  
+                    '&:hover': {
+                      backgroundColor: '#F0F4FF',  // Light blue hover effect
+                      borderColor: '449db',  // Adjust border color on hover
+                    },
+                }}
                   onClick={() => onChatClick(friend)}
                 >
-                  Chat
+                  <ChatIcon sx={{ fontSize: '20px' }} />
                 </Button>
                 <Button
-                  variant="outlined"
-                  size="small"
-                  color="error"
                   onClick={() => handleRemoveFriend(friend)}
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    backgroundColor: '#FFFFFF',  
+                    color: '#d32f2f', 
+                    boxShadow: 'none',  
+                    // // border: '1px solid #d32f2f',  
+                    padding: '8px',  
+                    minWidth: 'auto',  
+                    '&:hover': {
+                      backgroundColor: '#FFEBEE',  
+                      borderColor: '#b71c1c',  
+                    },
+                  }}
                 >
-                  Remove
+                  <DeleteIcon sx={{ fontSize: '20px' }} />  {/* Set the size of the icon */}
                 </Button>
               </Box>
             </Box>
