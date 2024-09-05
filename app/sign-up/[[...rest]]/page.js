@@ -33,7 +33,7 @@ export default function SignUpPage() {
             <SignUp 
               routing="path" 
               path="/sign-up" 
-              afterSignUpUrl="/user-details" 
+              forceRedirectUrl="/user-details" 
             />
           </Box>
         </Box>

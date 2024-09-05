@@ -8,7 +8,6 @@ import MapComponent2 from './maps/MapComponent2';
 import SearchIcon from '@mui/icons-material/Search';
 import { Box, Typography, Button, TextField, InputAdornment, Container, Avatar, Menu, MenuItem } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { useLoadScript, Autocomplete } from '@react-google-maps/api';
 
 const libraries = ['places'];
 
@@ -30,7 +29,14 @@ export default function Home() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-        if (!user) return;
+        console.log("in user", user)
+        if (!user) {
+          setSearchTerm("")
+          setSearchValue("")
+          setLoading(true)
+          setDefaultLocation({ lat: 38.627003, lng: -90.199402 })
+          return;
+        };
         try {
             const response = await fetch(
                 `/api/user-details?email=${encodeURIComponent(
@@ -64,12 +70,6 @@ export default function Home() {
 
     fetchUserData();
 }, [user]);
-
-  // Load the Google Maps script
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-    libraries,
-  });
 
   // Callback for when the Autocomplete component is loaded
   const onLoad = useCallback((autocomplete) => {
@@ -400,7 +400,8 @@ export default function Home() {
               // Render MapComponent2 when searchTerm is not present 
               <MapComponent defaultLocation={defaultLocation} />
             )*/}
-            {loading
+
+            {loading && user
               ? (<div>Loading...</div>)
               : searchTerm && searchTerm.trim() ? (
                 // Render MapComponent when searchTerm is present

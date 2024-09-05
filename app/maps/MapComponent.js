@@ -84,7 +84,6 @@ const MapComponent = ({defaultLocation}) => {
     // useEffect(() => {
     //     // updateVisibleUsers();
     // }, [center]);
-    console.log("insde map component",center)
     // if (!center) return <div>Hi loading...</div>;
     if (!isLoaded) return <div>Hi Loading...</div>;
     return (
