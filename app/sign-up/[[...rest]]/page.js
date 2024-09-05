@@ -34,6 +34,7 @@ export default function SignUpPage() {
               routing="path" 
               path="/sign-up" 
               afterSignUpUrl="/user-details" // Redirect to /user-details after successful sign-up
+              
             />
           </Box>
         </Box>

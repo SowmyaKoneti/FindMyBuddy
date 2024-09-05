@@ -3,7 +3,7 @@ import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/ap
 import { Box, Container, Button, Typography } from '@mui/material';
 import { getDistance } from 'geolib';
 
-const MapComponent = () => {
+const MapComponent = ({defaultLocation}) => {
     const [center, setCenter] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
     const [visibleUsers, setVisibleUsers] = useState([]);
@@ -29,16 +29,19 @@ const MapComponent = () => {
     ];
 
     useEffect(() => {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                setCenter({ lat: latitude, lng: longitude });
-            },
-            (error) => {
-                console.error(error);
-                setCenter({ lat: 38.627003, lng: -90.199402 }); // Default to Saint Louis if error
-            }
-        );
+
+        setCenter({lat : defaultLocation.lat, lng: defaultLocation.lng})
+        
+        // navigator.geolocation.getCurrentPosition(
+        //     (position) => {
+        //         const { latitude, longitude } = position.coords;
+        //         setCenter({ lat: latitude, lng: longitude });
+        //     },
+        //     (error) => {
+        //         console.error(error);
+        //         setCenter({ lat: 38.627003, lng: -90.199402 }); // Default to Saint Louis if error
+        //     }
+        // );
     }, []);
 
     // Include nearby users based on distance

@@ -7,6 +7,11 @@ import { useRouter } from 'next/navigation'; // Import useRouter for navigation
 import { Box, TextField, Button, Container, Typography, FormHelperText, InputAdornment, Alert } from '@mui/material';
 import Head from 'next/head';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import axios from 'axios';
+// import Router from 'next/router';
+
+
+
 
 export default function UserDetailsPage() {
   const { user } = useUser(); // Fetch logged-in user details from Clerk
@@ -47,9 +52,10 @@ export default function UserDetailsPage() {
       case 'location':
         if (!value.trim()) {
           error = 'Location is required';
-        } else if (!/^[a-zA-Z\s]+,\s?[a-zA-Z\s]+,\s?[a-zA-Z\s]+$/.test(value)) {
-          error = 'Location must be in "City, State, Country" format';
         }
+        // else if (/^[a-zA-Z0-9\s,.'-]{3,}$/.test(value)) {
+        //   error = 'Location must be in "1600 Amphitheatre Parkway, Mountain View, CA 130015" format';
+        // }
         break;
       case 'bio':
         if (!value.trim()) error = 'Bio Summary is required';
@@ -84,6 +90,42 @@ export default function UserDetailsPage() {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  
+  async function getLatLongFromAddress() {
+    const apiKey = process.env.GEOAPIFY_KEY;
+    const url = `https://api.geoapify.com/v1/geocode/search?text=38%20Upper%20Montagu%20Street%2C%20Westminster%20W1H%201LJ%2C%20United%20Kingdom&apiKey=${apiKey}`;
+    
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      console.log("before status 200",response)
+      if (data.status === 'OK') {
+        console.log("after status 200",response);
+        const { lat, lng } = data.results[1].geometry.coordinates;
+        console.log("inside google function", {lat,lng});
+        return { lat, lng };
+        
+        
+      } else {
+        throw new Error(`Geocoding failed: ${data.status}`);
+      }
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+  async function coordinates() {
+    let coordinates = await getLatLongFromAddress();
+    return coordinates
+  }
+  
+  // Example usage:
+  // getLatLongFromAddress('1600 Amphitheatre Parkway, Mountain View, CA')
+  //   .then((coords) => console.log(coords))
+  //   .catch((error) => console.error(error));
+  
+
   // Handle field blur (when user leaves the input)
   const handleBlur = (e) => {
     const { name, value } = e.target;
@@ -101,36 +143,98 @@ export default function UserDetailsPage() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const isValid = Object.keys(formData).every((key) => validateField(key, formData[key]));
-    if (isValid) {
-      const userDetails = {
-        ...formData,
-        username: user?.username || 'default_username',
-        email: user?.emailAddresses[0]?.emailAddress || 'default_email@example.com',
-      };
+    console.log("Location from formData", formData.location)
+    // let userMapLocation = await coordinates()
+                          // .then((coords) => {console.log("cords from userMapLocation",coords)
+                          //                    return coords    })
+                          // .catch((error) => console.error("Error from userMapLocation",error));
+
+    // const apiKey = "AIzaSyDflfP2-2__IH6jm9-2UaLpC9IGVj_rbvs";
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+    console.log("apiKey", apiKey)
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${formData.location}&key=${apiKey}`;
+    try {
+      console.log("inside try")
+      // const response = await fetch(`https://api.geoapify.com/v1/geocode/search?text=38%20Upper%20Montagu%20Street%2C%20Westminster%20W1H%201LJ%2C%20United%20Kingdom&apiKey=d91d27afeb5f47be87de5c4bfe6165bf`);
+      // const response = await fetch(url);
+      // const data;
+      axios({
+        method: 'get',
+        url: url,
+      })
+        .then(async function (response) {
+          // response.data.pipe(fs.createWriteStream('ada_lovelace.jpg'))
+          console.log("response", response)
   
-      try {
-        const response = await fetch('/api/user-details', { 
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userDetails),
+          if (response.status === 200) {
+            const data = response.data;
+            if (data.results && data.results[0] && data.results[0].geometry && data.results[0].geometry.location) {
+              console.log("data", data.results[0].geometry.location)
+              const coord = data.results[0].geometry.location;
+              const lng = coord.lng
+              const lat = coord.lat
+              console.log({ lng, lat });
+
+              const isValid = Object.keys(formData).every((key) => validateField(key, formData[key]));
+              console.log("formData",formData)
+    
+              if (isValid) {
+                const userDetails = {
+                  username: user?.username || 'default_username',
+                  email: user?.emailAddresses[0]?.emailAddress || 'default_email@example.com',
+                  lat: lat,
+                  lng: lng,
+                  ...formData,
+                };
+                console.log("User details from handle submit",userDetails)
+                try {
+                  
+                  // axios({
+                  //   headers: {
+                  //     "Content-Type":"application/json"
+                  //   },
+                  //   method: 'post',
+                  //   url: '/api/user-details',
+                  //   body: JSON.stringify(userDetails)
+                  // })
+                  const response = await fetch('/api/user-details', { 
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userDetails),
+                  })
+                    .then(function(response){
+                      console.log("inside axios post response")
+                      if (response.ok) {
+                        setSuccess(true);
+                        setTimeout(() => {
+                          router.push('/sign-in');
+                        }, 2000);
+                      } else {
+                        console.error('Failed to submit user details');
+                        console.log("inside axios post after ok",response);
+                      }
+                    });
+                  
+                  
+            
+                  
+                } catch (error) {
+                  console.error('Error submitting user details:', error);
+                }
+              }
+            }
+          } else {
+            throw new Error(`Geocoding failed: ${data.status}`);
+          }
         });
-  
-        if (response.ok) {
-          setSuccess(true);
-          setTimeout(() => {
-            router.push('/sign-in');
-          }, 2000);
-        } else {
-          console.error('Failed to submit user details');
-        }
-      } catch (error) {
-        console.error('Error submitting user details:', error);
-      }
-    }
-  };  
+    } catch (error) {
+      console.error(error);
+      return null;
+    }                          
+      
+  } 
 
   return (
     <Box
@@ -171,7 +275,7 @@ export default function UserDetailsPage() {
               fullWidth
               label={
                 field === 'location'
-                  ? 'Location (e.g., City, State, Country)'
+                  ? 'Location (e.g., Street, City, State, Zip)'
                   : field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')
               }
               name={field}
@@ -181,7 +285,7 @@ export default function UserDetailsPage() {
               inputRef={refs[field]}
               error={!!errors[field]}
               helperText={errors[field]}
-              placeholder={field === 'location' ? 'e.g., New York, NY, USA' : ''}
+              placeholder={field === 'location' ? 'e.g., 1600 Amphitheatre Parkway, Mountain View, CA' : ''}
               InputProps={{
                 endAdornment: validFields[field] ? (
                   <InputAdornment position="end">
