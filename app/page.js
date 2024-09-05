@@ -1,9 +1,10 @@
 'use client'; // Mark this as a Client Component
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Head from "next/head";
 import { SignedIn, SignedOut, useClerk, useUser } from "@clerk/nextjs";
 import MapComponent from "./maps/MapComponent";
+import MapComponent2 from './maps/MapComponent2';
 import SearchIcon from '@mui/icons-material/Search';
 import { Box, Typography, Button, TextField, InputAdornment, Container, Avatar, Menu, MenuItem } from '@mui/material';
 import { useRouter } from 'next/navigation';
@@ -12,12 +13,57 @@ import { useLoadScript, Autocomplete } from '@react-google-maps/api';
 const libraries = ['places'];
 
 export default function Home() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchValue, setSearchValue] = useState('');
+  const [defaultLocation, setDefaultLocation] = useState({ lat: 38.627003, lng: -90.199402 }); // Initial default coordinates
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+
   const router = useRouter(); // Initialize the router for navigation
   const { signOut } = useClerk(); // To handle sign out if needed
   const { user } = useUser(); // Fetch the current user details from Clerk
   const [location, setLocation] = useState('');
   const [interest, setInterest] = useState('');
   const [autocomplete, setAutocomplete] = useState(null);
+
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+        if (!user) return;
+        try {
+            const response = await fetch(
+                `/api/user-details?email=${encodeURIComponent(
+                    user.emailAddresses[0]?.emailAddress
+                )}&username=${encodeURIComponent(user.username)}`,
+                {
+                    method: 'GET',
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch user details');
+            }
+
+            const data = await response.json();
+            // Update default location with the fetched lat/lng
+            console.log("data in fetch user data",data)
+            console.log("data.lat in fetch user data",data.lat)
+            console.log("data.lng in fetch user data",data.lng)
+            if (data.lat && data.lng) {
+              setDefaultLocation({ lat: data.lat, lng: data.lng });
+            }
+            console.log("default location", defaultLocation)
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching user details:', err);
+            setError('Failed to load profile details');
+            setLoading(false);
+        }
+    };
+
+    fetchUserData();
+}, [user]);
 
   // Load the Google Maps script
   const { isLoaded } = useLoadScript({
@@ -38,20 +84,55 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSearch = async () => {
+    // Trigger search and pass the searchTerm to the MapComponent
+    console.log('Searching for:', searchValue);
+    setSearchTerm(searchValue)
+
     try {
-      const response = await fetch('api/user-details', {
+      const response = await fetch('/api/llm-data', { 
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ location, interest }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ "input": searchValue }),
       })
-      if (response.ok) {
-        const data = await response.json();
-      }
+        .then(function(response){
+          console.log("inside axios post response", response)
+          if (response.ok) {
+            console.log("ok response from llm",response.json())
+          } else {
+            
+            console.log("inside axios post after NOT ok",response);
+          }
+        });
     } catch (error) {
-      console.error(error);
+      console.error('Error submitting user details:', error);
     }
+    // setSearchTerm(searchTerm)
+    // Here you can also trigger any additional logic or state updates
+};
+
+  const handleKeyPress = (event) => {
+      if (event.key === 'Enter') {
+          handleSearch();
+      }
   };
+
+  // const handleSubmit = async () => {
+  //   try {
+  //     const response = await fetch('api/user-details', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ location, interest }),
+  //     })
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   const handleSignIn = () => {
     router.push('/sign-in'); // Navigate to sign-in page
@@ -67,7 +148,7 @@ export default function Home() {
   };
 
   // State for menu anchor element
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  // const [anchorEl, setAnchorEl] = React.useState(null);
 
   // Handle menu open
   const handleMenuOpen = (event) => {
@@ -207,7 +288,7 @@ export default function Home() {
             }}
           >
             {/* Location Search Bar */}
-            {isLoaded && (
+            {/* {isLoaded && (
               <Autocomplete
                 onLoad={onLoad}
                 onPlaceChanged={onPlaceChanged}
@@ -233,11 +314,11 @@ export default function Home() {
                     // endAdornment: (
                     //   <InputAdornment position="end">
                     //     <SearchIcon sx={{ color: '#000000' }} /> {/* Dark icon color for contrast */}
-                    //   </InputAdornment>
-                    // ),
-                  }}
-                  sx={{
-                    backgroundColor: '#FFFFFF', // White background for the input
+                      {/* </InputAdornment> */}
+                     {/* ), */}
+                  {/* }} */}
+                  {/* sx={{ */}
+                    {/* backgroundColor: '#FFFFFF', // White background for the input
                     borderRadius: '0px',
                     width: '300px', // Set width for consistency
                     '& .MuiOutlinedInput-root': {
@@ -246,16 +327,17 @@ export default function Home() {
                     '& .MuiInputBase-input': {
                       padding: '8px 12px', // Padding for input text
                     },
-                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-                  }}
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)', */}
+                  {/* }}
                 />
               </Autocomplete>
-            )}
+            )}  */}
 
             {/* Nearby Companions Search Bar */}
             <TextField
-              value={interest}
-              onChange={(e) => setInterest(e.target.value)}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyPress={handleKeyPress}
               variant="outlined"
               placeholder="Search by Interests  Eg: Dance"
               InputProps={{
@@ -271,11 +353,11 @@ export default function Home() {
                     borderColor: 'transparent', // Keep border transparent when focused
                   },
                 },
-                // endAdornment: (
-                //   <InputAdornment position="end">
-                //     <SearchIcon sx={{ color: '#000000' }} /> {/* Dark icon color for contrast */}
-                //   </InputAdornment>
-                // ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <SearchIcon sx={{ color: '#000000' }} /> {/* Dark icon color for contrast */}
+                  </InputAdornment>
+                ),
               }}
               sx={{
                 backgroundColor: '#FFFFFF', // White background for the input
@@ -301,7 +383,7 @@ export default function Home() {
                 padding: '0 15px',
                 fontSize: '12px',
               }}
-              onClick={handleSubmit}
+              onClick={handleSearch}
             >
               Search
             </Button>
@@ -311,11 +393,21 @@ export default function Home() {
         {/* Map Section */}
         <Container sx={{ padding: '2rem' }}>
           <Box sx={{ height: 400 }}>
-            {isLoaded ? (
-              <MapComponent />
-            ) : (
-              <div>Loading Map...</div>
-            )}
+            {/*searchTerm && searchTerm.trim() ? (
+              // Render MapComponent when searchTerm is present
+              <MapComponent2 searchTerm={searchTerm} defaultLocation={defaultLocation} />
+            ) : ( 
+              // Render MapComponent2 when searchTerm is not present 
+              <MapComponent defaultLocation={defaultLocation} />
+            )*/}
+            {loading
+              ? (<div>Loading...</div>)
+              : searchTerm && searchTerm.trim() ? (
+                // Render MapComponent when searchTerm is present
+                <MapComponent2 searchTerm={searchTerm} defaultLocation={defaultLocation} />
+              )
+              : <MapComponent defaultLocation={defaultLocation} />
+            }
           </Box>
         </Container>
       </Box >

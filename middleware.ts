@@ -1,8 +1,12 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-export default clerkMiddleware({
-  apiKey: process.env.NEXT_PUBLIC_CLERK_FRONTEND_API, // Ensure this matches your environment variable
-});
+
+const isProtectedRoute = createRouteMatcher(['/profile(.*)', '/user-details(.*)','/maps(.*)', '/friends(.*)', '/chats(.*)'])
+
+export default clerkMiddleware((auth, req) => {
+  if (isProtectedRoute(req)) auth().protect()
+})
+
 
 export const config = {
   matcher: [

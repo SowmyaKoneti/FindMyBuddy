@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import { Box, TextField, Button, Container, Typography, InputAdornment, Alert } from '@mui/material';
 import Head from 'next/head';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import axios from 'axios';
+
 
 export default function UserDetailsPage() {
   const { user } = useUser();
@@ -108,35 +110,109 @@ export default function UserDetailsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isValid = Object.keys(formData).every((key) => validateField(key, formData[key]));
-    if (isValid) {
-      const userDetails = {
-        ...formData,
-        username: user?.username || 'default_username',
-        email: user?.emailAddresses[0]?.emailAddress || 'default_email@example.com',
-      };
-  
-      try {
-        const response = await fetch('/api/user-details', { 
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userDetails),
+    // if (isValid) {
+    //   const userDetails = {
+    //     ...formData,
+    //     username: user?.username || 'default_username',
+    //     email: user?.emailAddresses[0]?.emailAddress || 'default_email@example.com',
+    //   };
+      console.log("Location from formData", formData.address)
+    
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    console.log("apiKey", apiKey)
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${formData.address}&key=${apiKey}`;
+    try {
+      console.log("inside try")
+      // const response = await fetch(`https://api.geoapify.com/v1/geocode/search?text=38%20Upper%20Montagu%20Street%2C%20Westminster%20W1H%201LJ%2C%20United%20Kingdom&apiKey=d91d27afeb5f47be87de5c4bfe6165bf`);
+      // const response = await fetch(url);
+      // const data;
+      axios({
+        method: 'get',
+        url: url,
+      })
+        .then(async function (response) {
+          // response.data.pipe(fs.createWriteStream('ada_lovelace.jpg'))
+          console.log("response", response)
+
+          if (response.status === 200) {
+            const data = response.data;
+            if (data.results && data.results[0] && data.results[0].geometry && data.results[0].geometry.location) {
+              console.log("data", data.results[0].geometry.location)
+              const coord = data.results[0].geometry.location;
+              const lng = coord.lng
+              const lat = coord.lat
+              console.log({ lng, lat });
+
+              const isValid = Object.keys(formData).every((key) => validateField(key, formData[key]));
+              console.log("formData",formData)
+
+              if (isValid) {
+                const userDetails = {
+                  username: user?.username || 'default_username',
+                  email: user?.emailAddresses[0]?.emailAddress || 'default_email@example.com',
+                  lat: lat,
+                  lng: lng,
+                  ...formData,
+                };
+                console.log("User details from handle submit",userDetails)
+                try {
+                  const response = await fetch('/api/user-details', { 
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userDetails),
+                  })
+                    .then(function(response){
+                      console.log("inside axios post response")
+                      if (response.ok) {
+                        setSuccess(true);
+                        setTimeout(() => {
+                          router.push('/sign-in');
+                        }, 2000);
+                      } else {
+                        console.error('Failed to submit user details');
+                        console.log("inside axios post after ok",response);
+                      }
+                    });
+                } catch (error) {
+                  console.error('Error submitting user details:', error);
+                }
+              }
+            }
+          } else {
+            throw new Error(`Geocoding failed: ${data.status}`);
+          }
         });
-  
-        if (response.ok) {
-          setSuccess(true);
-          setTimeout(() => {
-            router.push('/sign-in');
-          }, 2000);
-        } else {
-          console.error('Failed to submit user details');
-        }
       } catch (error) {
-        console.error('Error submitting user details:', error);
-      }
-    }
-  };
+        console.error(error);
+        return null;
+      }                          
+  
+    } 
+  
+  //     try {
+  //       const response = await fetch('/api/user-details', { 
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify(userDetails),
+  //       });
+  
+  //       if (response.ok) {
+  //         setSuccess(true);
+  //         setTimeout(() => {
+  //           router.push('/sign-in');
+  //         }, 2000);
+  //       } else {
+  //         console.error('Failed to submit user details');
+  //       }
+  //     } catch (error) {
+  //       console.error('Error submitting user details:', error);
+  //     }
+  //   }
+  // };
 
   return (
     <Box
