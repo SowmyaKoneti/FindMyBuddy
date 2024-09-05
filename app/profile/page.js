@@ -69,8 +69,6 @@ export default function ProfilePage() {
           github: data.github || '',
           instagram: data.instagram || '',
           twitter: data.twitter || '',
-          lat: data.lat,
-          lng: data.lng
         });
         setLoading(false);
       } catch (err) {
