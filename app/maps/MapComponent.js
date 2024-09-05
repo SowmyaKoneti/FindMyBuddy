@@ -3,6 +3,10 @@ import { useRouter } from 'next/navigation';
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import { Box, Button, Typography } from '@mui/material';
 import { getDistance } from 'geolib';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import InstagramIcon from '@mui/icons-material/Instagram';
 
 // API key for Google Maps Geocoding
 const GEOCODING_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -122,22 +126,28 @@ const MapComponent = () => {
         }
     };
 
+    const handleNavigation = (url) => {
+        if (url) {
+          window.open(url, '_blank');
+        }
+    };
+
     if (!center) return <div>Loading...</div>;
 
     return (
         <Box
-            sx={{
-                display: 'flex',
-                height: '100vh',
-                flexDirection: { xs: 'column', md: 'row' },
-            }}
-        >
+        sx={{
+            display: 'flex',
+            height: '100vh',
+            flexDirection: { xs: 'column', md: 'row' },
+        }}
+    >
             <Box
                 sx={{
-                    width: { xs: '100%', md: '70%' },
-                    height: { xs: '50vh', md: '100%' },
-                    display: 'flex',
-                    flexDirection: 'column',
+                width: { xs: '100%', md: '75%' },  
+                height: { xs: '50vh', md: '100%' },  
+                display: 'flex',
+                flexDirection: 'column',
                 }}
             >
                 {/* <LoadScript googleMapsApiKey={GEOCODING_API_KEY}> */}
@@ -184,9 +194,18 @@ const MapComponent = () => {
                                 </Typography>
                                 <Button
                                     variant="contained"
-                                    color="primary"
                                     size="small"
-                                    style={{ marginTop: '5px' }}
+                                    sx={{
+                                        background: 'linear-gradient(to right, #4f758f, #449fdb)', 
+                                        color: '#FFFFFF',  
+                                        width: 'auto',     
+                                        padding: '5 10px', 
+                                        marginTop: '5px',  
+                                        boxShadow: 'none', 
+                                        '&:hover': {
+                                        background: 'linear-gradient(to right, #3b5f7a, #4a86aa)', // Slightly darker gradient on hover
+                                        },
+                                    }}
                                     onClick={(e) => {
                                         e.stopPropagation(); // Prevent click event from triggering on parent Box
                                         console.log("from main page:" ,selectedUser.email,selectedUser.username )
@@ -203,22 +222,22 @@ const MapComponent = () => {
             </Box>
             <Box
                 sx={{
-                    width: { xs: '100%', md: '30%' },
-                    height: { xs: '50vh', md: '100%' },
-                    overflowY: 'auto',
-                    padding: '1rem',
-                    boxSizing: 'border-box',
-                    borderLeft: { md: '1px solid #ddd' },
+                width: { xs: '100%', md: '25%' },  // Full width on small screens, 20% on medium+
+                height: { xs: '50vh', md: '100%' },  // 50% height on small screens, full height on medium+
+                overflowY: 'auto',  // Allows scrolling if content overflows
+                padding: '0.5rem',
+                boxSizing: 'border-box',
+                borderLeft: { md: '1px solid #ddd' },  // Border on left side on medium+ screens
                 }}
             >
                 <Typography
                     variant="h6"
                     sx={{
-                        marginBottom: '1rem',
+                        marginBottom: '0.2rem',
                         fontWeight: 'bold',
                         textAlign: 'center'
                     }}
-                >Nearby Users</Typography>
+                >AI Suggested Nearby Users</Typography>
                 {users.map((user, index) => (
                     <Box
                         key={index}
@@ -226,7 +245,7 @@ const MapComponent = () => {
                             padding: '1rem',
                             marginBottom: '1rem',
                             border: '1px solid #ddd',
-                            borderRadius: '8px',
+                            borderRadius: '0px',
                             boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
                             backgroundColor: '#fff',
                             cursor: 'pointer',
@@ -240,23 +259,58 @@ const MapComponent = () => {
                         }}
                     >
                         <Typography variant="h6">{user.fullName}</Typography>
-                        <Typography variant="body2" color="textSecondary" gutterBottom>
-                            {user.lookingFor}
-                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+                        {user?.linkedIn && (
+                            <LinkedInIcon sx={{ color: '#0077b5', cursor: 'pointer' }} onClick={() => handleNavigation(user.linkedIn)} />
+                        )}
+                        {user?.github && (
+                            <GitHubIcon sx={{ color: '#333333', cursor: 'pointer' }} onClick={() => handleNavigation(user.github)} />
+                        )}
+                        {user?.twitter && (
+                            <TwitterIcon sx={{ color: '#1DA1F2', cursor: 'pointer' }} onClick={() => handleNavigation(user.twitter)} />
+                        )}
+                        {user?.instagram && (
+                            <InstagramIcon sx={{ color: '#E1306C', cursor: 'pointer' }} onClick={() => handleNavigation(user.instagram)} />
+                        )}
+                        </Box>    
+                        {user?.areaOfInterest && (
+                            <Typography variant="body2" color="textSecondary" gutterBottom>
+                                Area of Interest: {user.areaOfInterest}
+                            </Typography>
+                        )}
+                        {user?.lookingFor && (
+                            <Typography variant="body2" color="textSecondary" gutterBottom>
+                                Looking For: {user.lookingFor}
+                            </Typography>
+                        )}
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            width: '100%',
+                        }}>
                         <Button
                             variant="contained"
-                            color="primary"
                             size="small"
-                            width="20px"
-                            style={{ marginTop: '5px' }}
+                            sx={{
+                                background: 'linear-gradient(to right, #4f758f, #449fdb)', 
+                                color: '#FFFFFF',  
+                                width: 'auto',     
+                                padding: '5 10px', 
+                                marginTop: '5px',  
+                                boxShadow: 'none', 
+                                '&:hover': {
+                                background: 'linear-gradient(to right, #3b5f7a, #4a86aa)', // Slightly darker gradient on hover
+                                },
+                            }}
                             onClick={(e) => {
                                 e.stopPropagation(); // Prevent click event from triggering on parent Box
-                                console.log("from main page:" ,user.email,user.username )
+                                console.log("from main page:", user.email, user.username);
                                 router.push(`../profile?email=${encodeURIComponent(user.email)}&username=${encodeURIComponent(user.username)}`);
                             }}
-                        >
+                            >
                             Chat
                         </Button>
+                        </Box>
                     </Box>
                 ))}
             </Box>

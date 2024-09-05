@@ -81,21 +81,51 @@ export default function Home() {
 
   // Use Gravatar or a similar service to get a circular avatar if no profile image is available
   const avatarUrl = user?.profileImageUrl || `https://robohash.org/${user?.username || 'default'}.png?size=50x50&set=set4`; // Use set4 for circular avatars if supported
+  
+  // const llm_response = async (input) => {
+  //   try {
+  //     const response = await fetch('api/llm-data', { 
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ "input": input }),
+  //     })
+  //       .then(function(response){
+  //         console.log("inside axios post response", response)
+  //         if (response.ok) {
+  //           console.log("ok response from llm",response.json())
+  //         } else {
+            
+  //           console.log("inside axios post after NOT ok",response);
+  //         }
+  //       });
+  //   } catch (error) {
+  //     console.error('Error submitting user details:', error);
+  //   }
+  // }
+  // llm_response("sports");
 
   return (
     <>
       <Head>
         <title>club3 - Home</title>
-        <meta name="description" content="Connect with others based on your interests and location." />
+        <link rel = "icon"
+		          href = "/images/club3-favicon.ico"/>
+        <meta name="description" content="Your community, Your connections." />
       </Head>
-
       <Box
         sx={{
           width: '100%',
-          minHeight: '100vh',
+          minHeight: '100vh',  // Ensures full viewport height initially
           display: 'flex',
           flexDirection: 'column',
           background: 'linear-gradient(to right, #E0F7FA, #FFFFFF, #E0F7FA)', // Gradient background
+          justifyContent: 'flex-start',
+          backgroundRepeat: 'no-repeat',  
+          backgroundSize: 'absolute', 
+          boxSizing: 'border-box',  
+          // overflow: 'hidden', 
         }}
       >
         {/* Header */}
@@ -103,7 +133,7 @@ export default function Home() {
           <Typography
             variant="h4"
             sx={{
-              background: 'linear-gradient(to right, #4f758f, #449fdb)',
+              background: 'linear-gradient(to right, #fcb045, #fd8369)',  
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               fontWeight: 'bold',
@@ -116,11 +146,12 @@ export default function Home() {
               <Button
                 variant="contained"
                 sx={{
-                  background: 'linear-gradient(to right, #4f758f, #449fdb)', // Gradient for button
+                  background: 'linear-gradient(to right, #4f758f, #449fdb)',  
                   color: '#FFFFFF',
                   '&:hover': {
-                    background: 'linear-gradient(to right, #3b5f7a, #307fcc)', // Darker gradient on hover
-                  }
+                    background: 'linear-gradient(to right, #3b5f7a, #4a86aa)',  // Darker gradient on hover with similar shades
+                  },
+                  boxShadow: 'none',  // Removes the default button shadow for a cleaner look
                 }}
                 onClick={handleSignIn}
               >
@@ -129,18 +160,19 @@ export default function Home() {
               <Button
                 variant="contained"
                 sx={{
-                  background: 'linear-gradient(to right, #4f758f, #449fdb)', // Gradient for button
+                  background: 'linear-gradient(to right, #4f758f, #449fdb)',
                   color: '#FFFFFF',
                   marginLeft: '1rem',
                   '&:hover': {
-                    background: 'linear-gradient(to right, #3b5f7a, #307fcc)', // Darker gradient on hover
-                  }
+                    background: 'linear-gradient(to right, #3b5f7a,  #4a86aa)', 
+                  },
                 }}
                 onClick={handleSignUp}
               >
                 Sign Up
               </Button>
             </SignedOut>
+
             <SignedIn>
               {/* Custom Profile Button */}
               <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={handleMenuOpen}>
@@ -150,13 +182,27 @@ export default function Home() {
                 <Avatar
                   src={avatarUrl}
                   alt={user?.username || 'User'}
-                  sx={{ width: 40, height: 40, borderRadius: '50%' }} // Ensuring the avatar is circular
+                  sx={{ width: 40, height: 40, borderRadius: '50%' }} 
                 />
               </Box>
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
+                sx={{
+                  '& .MuiPaper-root': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                    color: '#4f758f',  
+                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',  
+                    borderRadius: '0px', 
+                  },
+                  '& .MuiMenuItem-root': {
+                    '&:hover': {
+                      backgroundColor: '#fcb045', 
+                      color: '#FFFFFF',  
+                    },
+                  },
+                }}
               >
                 <MenuItem onClick={handleProfileRedirect}>Profile</MenuItem>
                 <MenuItem onClick={() => signOut()}>Sign Out</MenuItem>
@@ -167,15 +213,22 @@ export default function Home() {
 
         {/* Main Content */}
         <Container sx={{ textAlign: 'center', padding: '2rem' }}>
+          <img
+            src="/images/club3-custom-logo.svg"  // Replace with the actual path to your logo
+            alt="Logo"
+            style={{ width: '150px', marginBottom: '1rem' }}  // Adjust size and spacing as needed
+          />
           <Typography
             variant="h2"
             sx={{
-              marginBottom: '1rem',
+              marginBottom: '0.5rem',
               fontWeight: 700,
-              fontSize: '45px',
+              fontSize: '40px',
               fontFamily: 'Poppins, sans-serif',
               letterSpacing: '1.2px',
-              color: '#3996d4',
+              background: 'linear-gradient(to right, #4f758f, #449fdb)',  // Gradient effect
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
             }}
           >
             Unite with Like-Minded People
@@ -189,7 +242,7 @@ export default function Home() {
               maxWidth: '600px',
               fontSize: '15px',
               margin: '0 auto',
-              marginBottom: '2em',
+              marginBottom: '1rem',
             }}
           >
             A place to create your own social community based on your interests and location. <br />
@@ -294,12 +347,17 @@ export default function Home() {
             {/* Search Button */}
             <Button
               variant="contained"
-              color="primary"
               sx={{
-                height: '40px', // Same height as the text fields
-                borderRadius: '0px',
+                background: 'linear-gradient(to right, #4f758f, #449fdb)',  
+                color: '#FFFFFF', 
+                height: '40px',  
                 padding: '0 15px',
-                fontSize: '12px',
+                fontSize: '18px',
+                textTransform: 'none',  
+                boxShadow: 'none',  
+                '&:hover': {
+                  background: 'linear-gradient(to right, #3b5f7a, #4a86aa)',  
+                },
               }}
               onClick={handleSubmit}
             >
@@ -309,8 +367,13 @@ export default function Home() {
         </Container>
 
         {/* Map Section */}
-        <Container sx={{ padding: '2rem' }}>
-          <Box sx={{ height: 400 }}>
+        <Container sx={{ 
+            padding: '1rem',
+            maxWidth: '100% !important',         
+          }}>
+          <Box sx={{ 
+              height: '400' ,
+            }}>
             {isLoaded ? (
               <MapComponent />
             ) : (

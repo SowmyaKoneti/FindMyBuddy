@@ -17,7 +17,6 @@ export async function POST(req) {
 
         const pc = new Pinecone({
             apiKey: process.env.PINECONE_API_KEY,
-            environment: process.env.PINECONE_ENVIRONMENT, // Ensure environment is set
         });
 
         const index = pc.index('club3-users').namespace('user-namespace');
