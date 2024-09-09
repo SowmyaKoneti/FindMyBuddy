@@ -9,6 +9,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Box, Typography, Button, TextField, InputAdornment, Container, Avatar, Menu, MenuItem } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useLoadScript, Autocomplete } from '@react-google-maps/api';
+import GoogleAnalytics from "./GoogleAnalytics";
 
 const libraries = ['places'];
 
@@ -27,6 +28,7 @@ export default function Home() {
   const [interest, setInterest] = useState('');
   const [autocomplete, setAutocomplete] = useState(null);
 
+  <GoogleAnalytics />
 
   useEffect(() => {
     const fetchUserData = async () => {
